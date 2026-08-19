@@ -191,10 +191,9 @@
   }
   .stat{padding:1.4rem 1.2rem 0 0}
   .stat + .stat{padding-left:1.4rem;border-left:1px solid var(--line)}
-  .stat-num{
-    font-family:'JetBrains Mono',monospace;font-size:2rem;font-weight:500;color:var(--ink);
+  .stat-title{
+    font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:600;color:var(--ink);
   }
-  .stat-num small{font-size:.95rem;color:var(--ink-soft)}
   .stat-label{font-size:.85rem;color:var(--ink-soft);margin-top:.2rem;line-height:1.4}
 
   /* ============ Reveal ============ */
@@ -235,7 +234,7 @@
   .tag.cool{border-color:var(--teal);color:var(--teal-text)}
 
   /* ============ Projects ============ */
-  .proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2.4rem}
+  .proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;margin-top:2.4rem}
   .pcard{
     position:relative;display:flex;flex-direction:column;
     background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
@@ -275,13 +274,31 @@
     padding:1.6rem;transition:transform .25s,border-color .25s;
   }
   .biz-card:hover{transform:translateY(-5px);border-color:var(--teal)}
-  .biz-chip{
-    display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.76rem;
-    color:var(--teal-text);border:1px solid var(--teal);border-radius:99px;
-    padding:.24rem .7rem;margin-bottom:.9rem;
-  }
   .biz-card h3{margin-bottom:.5rem;font-size:1.08rem}
   .biz-card p{color:var(--ink-soft);font-size:.95rem}
+
+  /* ============ Code viewer modal ============ */
+  .btn-sm{padding:.55rem 1.05rem;font-size:.88rem;border-radius:10px}
+  .pactions{margin-top:1rem}
+  .modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+  .modal[hidden]{display:none}
+  .modal-backdrop{position:absolute;inset:0;background:rgba(5,9,18,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  [data-theme="light"] .modal-backdrop{background:rgba(22,34,59,.38)}
+  .modal-panel{
+    position:relative;width:min(920px,100%);max-height:88vh;display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.2rem;border-bottom:1px solid var(--line)}
+  .modal-file{font-size:.85rem;color:var(--gold-text)}
+  .modal-tools{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.9rem 1.2rem;border-bottom:1px solid var(--line)}
+  .modal-hint{font-size:.8rem;color:var(--ink-soft)}
+  .code{overflow:auto;padding:1.1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.6;tab-size:4}
+  .code .k{color:var(--gold-text)}
+  .code .s{color:var(--teal-text)}
+  .code .c{color:var(--ink-soft);font-style:italic}
+  .code .n{color:var(--gold-strong)}
+  body.modal-open{overflow:hidden}
 
   /* ============ Contact ============ */
   #contact{text-align:center}
@@ -323,7 +340,7 @@
   }
   @media (max-width:520px){
     .hero{padding-top:6rem;min-height:auto;padding-bottom:1rem}
-    .stat-num{font-size:1.6rem}
+    .stat-title{font-size:1.02rem}
   }
 
   /* ============ Reduced motion ============ */
@@ -378,7 +395,7 @@
       <span class="fun">fun<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 20 3, 35 11, 52 6 S 84 4, 98 7"/></svg></span>ctional software.
     </h1>
     <p class="lede reveal" style="--d:.16s">
-      I'm Saad, a third-semester software engineering student at the University of Europe
+      I'm Saad, a software engineering student at the University of Europe
       for Applied Sciences in Potsdam. I build working products in Python, explain them in
       plain language, and keep the team in a good mood while we ship.
     </p>
@@ -388,20 +405,20 @@
     </div>
     <div class="stats reveal" style="--d:.32s">
       <div class="stat">
-        <div class="stat-num"><span data-to="96">0</span><small>/100</small></div>
-        <div class="stat-label">Machine Learning &amp; Smart Systems</div>
+        <div class="stat-title">Python-first</div>
+        <div class="stat-label">Ideas to working software</div>
       </div>
       <div class="stat">
-        <div class="stat-num"><span data-to="96">0</span><small>/100</small></div>
-        <div class="stat-label">Software Engineering I</div>
+        <div class="stat-title">Machine learning</div>
+        <div class="stat-label">Models people can follow</div>
       </div>
       <div class="stat">
-        <div class="stat-num"><span data-to="95">0</span><small>/100</small></div>
-        <div class="stat-label">Startup Management</div>
+        <div class="stat-title">Team player</div>
+        <div class="stat-label">Usually the one presenting</div>
       </div>
       <div class="stat">
-        <div class="stat-num"><span data-to="93">0</span><small>/100</small></div>
-        <div class="stat-label">Corporate Management</div>
+        <div class="stat-title">Business-aware</div>
+        <div class="stat-label">Startup habits, corporate context</div>
       </div>
     </div>
   </div>
@@ -416,14 +433,14 @@
       <div class="about-copy">
         <h2 class="reveal">Good code, good company.</h2>
         <p class="reveal" style="--d:.08s">
-          <strong>Python is home base.</strong> If I can sketch an idea, I can usually ship it,
-          and I scored 92/100 in Programming doing exactly that. Java covers my backend work,
+          <strong>Python is home base.</strong> If I can sketch an idea, I can usually ship it.
+          Java covers my backend work,
           C++ my parallel programming, and machine learning is where the two things I enjoy
           most (building and figuring things out) overlap.
         </p>
         <p class="reveal" style="--d:.14s">
           The part that doesn't show up in a repo: I like presenting, and I've gotten good at
-          reading a room. Employability: Business English (91/100) turned out to be less about
+          reading a room. A course called Employability: Business English turned out to be less about
           English and more about handling people well. Group projects go smoother when someone
           actually cares about the vibe. That's usually me.
         </p>
@@ -431,11 +448,11 @@
       <div class="receipts">
         <div class="receipt reveal" style="--d:.1s">
           <h3>Self-taught when it counted</h3>
-          <p>When Computer Architecture lectures didn't click, I worked through the material myself, from logic gates up. Finished at 85/100.</p>
+          <p>When Computer Architecture lectures didn't click, I worked through the material myself, from logic gates up, and finished the course comfortably.</p>
         </div>
         <div class="receipt reveal" style="--d:.18s">
           <h3>Does the unglamorous work</h3>
-          <p>Statistics was never going to be my favorite subject. I studied like it was, and walked away with 91/100.</p>
+          <p>Statistics was never going to be my favorite subject. I studied like it was, and it paid off.</p>
         </div>
         <div class="receipt reveal" style="--d:.26s">
           <h3>Speaks human</h3>
@@ -463,7 +480,7 @@
       </div>
       <div class="skill-card reveal" style="--d:.14s">
         <h3>AI &amp; machine learning</h3>
-        <p>Purpose-built models, from a healthcare classifier (featured below) to smaller ones made purely for fun. Machine Learning &amp; Smart Systems: 96/100. Artificial Intelligence: 91/100.</p>
+        <p>Purpose-built models, from the two healthcare projects featured below to smaller ones made purely for fun. Sharpened in the Machine Learning &amp; Smart Systems and Artificial Intelligence courses.</p>
         <div class="tags">
           <span class="tag hot">Classification</span>
           <span class="tag">Model design</span>
@@ -481,7 +498,7 @@
       </div>
       <div class="skill-card reveal" style="--d:.26s">
         <h3>Data &amp; research</h3>
-        <p>Comfortable filtering and shaping large datasets until they answer a real question. Trained in quantitative and qualitative methods (91/100), so my reports come with the data to back them up.</p>
+        <p>Comfortable filtering and shaping large datasets until they answer a real question. Trained in quantitative and qualitative methods, so my reports come with the data to back them up.</p>
         <div class="tags">
           <span class="tag cool">Big data</span>
           <span class="tag cool">Quant &amp; qual methods</span>
@@ -499,7 +516,7 @@
     <p class="lede reveal" style="--d:.06s">Course projects, treated like real products.</p>
     <div class="proj-grid">
       <article class="pcard reveal" style="--d:.08s">
-        <div class="pband"><span>gym.run()</span></div>
+        <div class="pband"><span>Gym web app</span></div>
         <div class="pbody">
           <h3>Gym Membership Management Platform</h3>
           <p>A full web platform for running a gym: member accounts, plans, and day-to-day operations. Frontend and backend written in Python, talking to a live server, with member-facing touches like workout plan views and voting on class times.</p>
@@ -508,14 +525,14 @@
             <span class="tag">Full-stack</span>
             <span class="tag">Client–server</span>
           </div>
-          <div class="pmeta">Web application · running end to end</div>
+          <div class="pmeta">Python front to back · runs end to end</div>
         </div>
       </article>
       <article class="pcard reveal" style="--d:.16s">
-        <div class="pband"><span>staff.train()</span></div>
+        <div class="pband"><span>Staff training app</span></div>
         <div class="pbody">
           <h3>Restaurant Staff Management &amp; Training App</h3>
-          <p>Team build from Software Engineering I (96/100): a tool restaurant managers use to organize staff and run training. We had one rule for every design decision: a shift lead should learn it in one sitting, no manual.</p>
+          <p>Team build from Software Engineering I: a tool restaurant managers use to organize staff and run training. We had one rule for every design decision: a shift lead should learn it in one sitting, no manual.</p>
           <div class="tags">
             <span class="tag">Team project</span>
             <span class="tag cool">Usability-first</span>
@@ -525,7 +542,7 @@
         </div>
       </article>
       <article class="pcard reveal" style="--d:.24s">
-        <div class="pband"><span>model.predict()</span></div>
+        <div class="pband"><span>Patient classifier</span></div>
         <div class="pbody">
           <h3>Healthcare Patient Identification Algorithm</h3>
           <p>A machine learning model that categorizes patient records by smoking status and age group. Accuracy mattered, and so did explainability: it's built so someone outside ML can follow why it decides what it decides.</p>
@@ -535,6 +552,22 @@
             <span class="tag cool">Healthcare data</span>
           </div>
           <div class="pmeta">ML classifier · built for clarity</div>
+        </div>
+      </article>
+      <article class="pcard reveal" style="--d:.32s">
+        <div class="pband"><span>Heart attack risk model</span></div>
+        <div class="pbody">
+          <h3>Heart Attack Risk Prediction</h3>
+          <p>A complete logistic regression pipeline on 8,763 patient records from Kaggle: blood-pressure feature engineering, stratified splitting, leak-free scaling, and balanced class weights. Exploration flagged the dataset as synthetic (every feature correlation under 0.02), so the honest finding is methodological: a correct pipeline can't invent signal that isn't there.</p>
+          <div class="tags">
+            <span class="tag hot">Python</span>
+            <span class="tag">scikit-learn</span>
+            <span class="tag cool">Logistic regression</span>
+          </div>
+          <div class="pactions">
+            <button class="btn btn-primary btn-sm" data-open-code>View code &amp; dataset</button>
+          </div>
+          <div class="pmeta">Machine Learning &amp; Smart Systems · code free to reuse</div>
         </div>
       </article>
     </div>
@@ -548,17 +581,14 @@
     <p class="lede reveal" style="--d:.06s">Software gets built inside companies. I've studied how those work too.</p>
     <div class="biz-grid">
       <div class="biz-card reveal" style="--d:.08s">
-        <span class="biz-chip">95/100</span>
         <h3>Startup Management</h3>
         <p>Running lean: tight scoping, fast decisions, and keeping a small team moving without burning anyone out.</p>
       </div>
       <div class="biz-card reveal" style="--d:.16s">
-        <span class="biz-chip">93/100</span>
         <h3>Corporate Management</h3>
         <p>How larger organizations actually run: delegation, office functions, and what makes a team gel.</p>
       </div>
       <div class="biz-card reveal" style="--d:.24s">
-        <span class="biz-chip">85/100</span>
         <h3>Digital Media &amp; Communication</h3>
         <p>Reading market needs and turning them into presentations people act on.</p>
       </div>
@@ -590,6 +620,298 @@
     <span class="mono">putting the <b>fun</b> in functional since 2025</span>
   </div>
 </footer>
+
+<div class="modal" id="codeModal" hidden>
+  <div class="modal-backdrop" data-close-code></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Heart attack prediction code and dataset">
+    <div class="modal-head">
+      <span class="mono modal-file">heart_attack_prediction.py</span>
+      <button class="icon-btn" data-close-code aria-label="Close code viewer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-tools">
+      <button class="btn btn-primary btn-sm" id="copyCode">Copy code</button>
+      <a class="btn btn-ghost btn-sm" href="https://www.kaggle.com/datasets/iamsouravbanerjee/heart-attack-prediction-dataset" target="_blank" rel="noopener">Dataset on Kaggle</a>
+      <span class="modal-hint">Runs on pandas, numpy, scikit-learn, matplotlib, seaborn. Point DATA_PATH at the Kaggle CSV.</span>
+    </div>
+    <pre class="code"><code id="codeOut"></code></pre>
+  </div>
+</div>
+
+<script type="text/plain" id="mlSource">
+"""
+Heart Attack Risk Prediction with Logistic Regression
+======================================================
+Machine Learning and Smart Systems - SS 2026
+Dataset: Heart Attack Prediction Dataset (Kaggle, iamsouravbanerjee)
+         https://www.kaggle.com/datasets/iamsouravbanerjee/heart-attack-prediction-dataset
+
+The script follows the eight required project steps:
+  1. Dataset exploration
+  2. Data preprocessing strategy
+  3. Train-test split with stratification
+  4. Logistic regression model setup
+  5. Model training with convergence monitoring
+  6. Prediction generation and probability thresholding
+  7. Performance evaluation (accuracy, precision, recall, F1, confusion matrix)
+  8. Results interpretation (coefficients / feature importance)
+
+Run:  python heart_attack_prediction.py
+Requires: pandas, numpy, scikit-learn, matplotlib, seaborn
+"""
+
+import os
+
+import matplotlib
+
+matplotlib.use("Agg")  # allows the script to run without a display
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
+)
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+RANDOM_STATE = 42          # fixed seed so results are reproducible
+FIG_DIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+DATA_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "heart_attack_prediction_dataset.csv"
+)
+os.makedirs(FIG_DIR, exist_ok=True)
+
+
+def save_fig(name):
+    """Save the current matplotlib figure into the figures folder."""
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIG_DIR, name), dpi=150)
+    plt.close()
+
+
+# ---------------------------------------------------------------------------
+# STEP 1 - DATASET EXPLORATION
+# ---------------------------------------------------------------------------
+print("=" * 70)
+print("STEP 1: Dataset exploration")
+print("=" * 70)
+
+df = pd.read_csv(DATA_PATH)
+print(f"Shape: {df.shape[0]} rows x {df.shape[1]} columns")
+print(f"Missing values total: {df.isna().sum().sum()}")
+print(f"Duplicate rows: {df.duplicated().sum()}")
+
+# Class balance of the target variable
+target_counts = df["Heart Attack Risk"].value_counts()
+print("\nTarget distribution (Heart Attack Risk):")
+print(target_counts)
+print(f"Positive rate: {target_counts[1] / len(df):.1%}")
+
+# Figure: class balance
+plt.figure(figsize=(5, 4))
+ax = target_counts.plot(kind="bar", color=["#4C72B0", "#C44E52"])
+ax.set_xticklabels(["No risk (0)", "At risk (1)"], rotation=0)
+ax.set_ylabel("Number of patients")
+ax.set_title("Target class distribution")
+for i, v in enumerate(target_counts):
+    ax.text(i, v + 50, str(v), ha="center")
+save_fig("fig1_class_distribution.png")
+
+# Figure: distributions of key numeric features
+numeric_preview = ["Age", "Cholesterol", "Heart Rate", "BMI", "Triglycerides", "Exercise Hours Per Week"]
+fig, axes = plt.subplots(2, 3, figsize=(12, 6))
+for ax, col in zip(axes.ravel(), numeric_preview):
+    df[col].hist(bins=30, ax=ax, color="#4C72B0", edgecolor="white")
+    ax.set_title(col, fontsize=10)
+fig.suptitle("Distributions of key numeric features")
+save_fig("fig2_feature_distributions.png")
+
+# ---------------------------------------------------------------------------
+# STEP 2 - DATA PREPROCESSING AND FEATURE ENGINEERING
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 2: Preprocessing and feature engineering")
+print("=" * 70)
+
+data = df.copy()
+
+# 2a. 'Blood Pressure' is stored as a string like "158/88".
+#     We split it into two numeric features: systolic and diastolic pressure.
+bp = data["Blood Pressure"].str.split("/", expand=True).astype(int)
+data["Systolic BP"] = bp[0]
+data["Diastolic BP"] = bp[1]
+data = data.drop(columns=["Blood Pressure"])
+
+# 2b. Encode binary categorical feature 'Sex' (Male=1, Female=0).
+data["Sex"] = (data["Sex"] == "Male").astype(int)
+
+# 2c. 'Diet' is ordinal (Unhealthy < Average < Healthy) -> ordinal encoding.
+data["Diet"] = data["Diet"].map({"Unhealthy": 0, "Average": 1, "Healthy": 2})
+
+# 2d. Drop identifier and geographic columns. Patient ID carries no medical
+#     information; Country/Continent/Hemisphere would add ~25 dummy columns
+#     with no plausible causal link to individual cardiac risk.
+data = data.drop(columns=["Patient ID", "Country", "Continent", "Hemisphere"])
+
+feature_names = [c for c in data.columns if c != "Heart Attack Risk"]
+X = data[feature_names]
+y = data["Heart Attack Risk"]
+print(f"Final feature matrix: {X.shape[1]} features, {X.shape[0]} samples")
+
+# Figure: correlation of each feature with the target
+corr = data.corr(numeric_only=True)["Heart Attack Risk"].drop("Heart Attack Risk")
+plt.figure(figsize=(7, 6))
+corr.sort_values().plot(kind="barh", color="#4C72B0")
+plt.title("Correlation of each feature with Heart Attack Risk")
+plt.xlabel("Pearson correlation")
+save_fig("fig3_target_correlations.png")
+print("\nStrongest absolute correlations with target:")
+print(corr.abs().sort_values(ascending=False).head(5).round(4))
+
+# ---------------------------------------------------------------------------
+# STEP 3 - STRATIFIED TRAIN-TEST SPLIT
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 3: Train-test split (80/20, stratified)")
+print("=" * 70)
+
+# stratify=y keeps the 64/36 class ratio identical in both subsets,
+# random_state makes the split reproducible.
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, stratify=y, random_state=RANDOM_STATE
+)
+print(f"Train: {X_train.shape[0]} samples ({y_train.mean():.1%} positive)")
+print(f"Test:  {X_test.shape[0]} samples ({y_test.mean():.1%} positive)")
+
+# Scaling is fitted ONLY on the training data to avoid data leakage,
+# then applied to both subsets. Logistic regression benefits from
+# standardized features (faster convergence, comparable coefficients).
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_test_s = scaler.transform(X_test)
+
+# ---------------------------------------------------------------------------
+# STEP 4 & 5 - MODEL SETUP AND TRAINING
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 4/5: Logistic regression setup and training")
+print("=" * 70)
+
+# Model: P(y=1|x) = 1 / (1 + e^-(b0 + b1*x1 + ... + bn*xn))
+# - solver='lbfgs': quasi-Newton optimizer, standard choice for L2 penalty
+# - C=1.0: default L2 regularization strength (inverse)
+# - class_weight='balanced': re-weights classes inversely proportional to
+#   their frequency; without it, the imbalanced data (64% negatives) pushes
+#   the model to always predict class 0.
+model = LogisticRegression(
+    solver="lbfgs",
+    C=1.0,                     # inverse of the default L2 regularization strength
+    class_weight="balanced",
+    max_iter=1000,
+    random_state=RANDOM_STATE,
+)
+model.fit(X_train_s, y_train)
+print(f"Converged in {model.n_iter_[0]} iterations (limit: 1000)")
+
+# ---------------------------------------------------------------------------
+# STEP 6 - PREDICTION GENERATION AND THRESHOLDING
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 6: Predictions and probability thresholding")
+print("=" * 70)
+
+# predict_proba returns P(y=1|x); the default decision threshold is 0.5.
+y_prob = model.predict_proba(X_test_s)[:, 1]
+y_pred = (y_prob >= 0.5).astype(int)
+print(f"Predicted probability range: [{y_prob.min():.3f}, {y_prob.max():.3f}]")
+print(f"Predicted positives at t=0.5: {y_pred.sum()} of {len(y_pred)}")
+
+# In a medical screening context, missing a true at-risk patient (false negative)
+# is worse than a false alarm. We therefore also inspect a lower threshold
+# that trades precision for recall.
+y_pred_040 = (y_prob >= 0.40).astype(int)
+
+# ---------------------------------------------------------------------------
+# STEP 7 - PERFORMANCE EVALUATION
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 7: Evaluation metrics")
+print("=" * 70)
+
+def report(name, y_true, y_hat):
+    acc = accuracy_score(y_true, y_hat)
+    prec = precision_score(y_true, y_hat, zero_division=0)
+    rec = recall_score(y_true, y_hat, zero_division=0)
+    f1 = f1_score(y_true, y_hat, zero_division=0)
+    print(f"{name:<22} accuracy={acc:.3f}  precision={prec:.3f}  "
+          f"recall={rec:.3f}  F1={f1:.3f}")
+    return acc, prec, rec, f1
+
+acc, prec, rec, f1 = report("Threshold 0.50", y_test, y_pred)
+report("Threshold 0.40", y_test, y_pred_040)
+auc = roc_auc_score(y_test, y_prob)
+print(f"ROC-AUC: {auc:.3f}  (0.5 = random guessing)")
+
+print("\nClassification report (threshold 0.50):")
+print(classification_report(y_test, y_pred, target_names=["No risk", "At risk"]))
+
+# Figure: confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(cm, display_labels=["No risk", "At risk"])
+disp.plot(cmap="Blues", values_format="d")
+plt.title("Confusion matrix (test set, threshold 0.5)")
+save_fig("fig4_confusion_matrix.png")
+
+# Figure: ROC curve
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+plt.figure(figsize=(5, 5))
+plt.plot(fpr, tpr, label=f"Logistic regression (AUC = {auc:.3f})")
+plt.plot([0, 1], [0, 1], "k--", label="Random classifier (AUC = 0.5)")
+plt.xlabel("False positive rate")
+plt.ylabel("True positive rate")
+plt.title("ROC curve")
+plt.legend()
+save_fig("fig5_roc_curve.png")
+
+# ---------------------------------------------------------------------------
+# STEP 8 - RESULTS INTERPRETATION: COEFFICIENTS / FEATURE IMPORTANCE
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 8: Coefficient analysis")
+print("=" * 70)
+
+coefs = pd.Series(model.coef_[0], index=feature_names).sort_values()
+print("All standardized coefficients (log-odds per 1 SD increase):")
+print(coefs.round(4))
+
+# Odds ratios: e^beta tells how the odds change per 1 SD feature increase
+print("\nTop 5 features by absolute effect (odds ratio):")
+top = coefs.abs().sort_values(ascending=False).head(5)
+for feat in top.index:
+    print(f"  {feat:<28} beta={coefs[feat]:+.4f}  OR={np.exp(coefs[feat]):.3f}")
+
+plt.figure(figsize=(7, 6))
+colors = ["#C44E52" if v > 0 else "#4C72B0" for v in coefs]
+coefs.plot(kind="barh", color=colors)
+plt.axvline(0, color="black", lw=0.8)
+plt.title("Logistic regression coefficients (standardized features)")
+plt.xlabel("Coefficient (log-odds)")
+save_fig("fig6_coefficients.png")
+
+print("\nAll figures saved to:", os.path.abspath(FIG_DIR))
+print("Done.")
+</script>
 
 <script>
 (function(){
@@ -644,34 +966,61 @@
     revealed.forEach(function(el){ el.classList.add('in'); });
   }
 
-  /* Count-up stats */
-  var counters = document.querySelectorAll('[data-to]');
-  function animateCount(el){
-    var target = parseInt(el.dataset.to, 10);
-    if(reduceMotion){ el.textContent = target; return; }
-    var start = null, dur = 1100;
-    function step(ts){
-      if(!start) start = ts;
-      var p = Math.min((ts - start) / dur, 1);
-      var eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = Math.round(eased * target);
-      if(p < 1) requestAnimationFrame(step);
+  /* Code viewer modal */
+  var modal = document.getElementById('codeModal');
+  var codeOut = document.getElementById('codeOut');
+  var rawCode = document.getElementById('mlSource').textContent.trim();
+  var highlighted = false;
+
+  function hlPython(src){
+    var esc = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc.replace(
+      /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|#[^\n]*|\b\d+(?:\.\d+)?\b|\b(?:import|from|as|def|return|if|elif|else|for|in|not|and|or|with|class|lambda|None|True|False|print)\b)/g,
+      function(m){
+        if(m.charAt(0) === '#') return '<span class="c">' + m + '</span>';
+        if(m.charAt(0) === '"' || m.charAt(0) === "'") return '<span class="s">' + m + '</span>';
+        if(/^\d/.test(m)) return '<span class="n">' + m + '</span>';
+        return '<span class="k">' + m + '</span>';
+      }
+    );
+  }
+  function openModal(){
+    if(!highlighted){ codeOut.innerHTML = hlPython(rawCode); highlighted = true; }
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+    modal.querySelector('.icon-btn').focus();
+  }
+  function closeModal(){
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+  }
+  document.querySelectorAll('[data-open-code]').forEach(function(b){ b.addEventListener('click', openModal); });
+  document.querySelectorAll('[data-close-code]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  /* Copy code to clipboard */
+  var copyBtn = document.getElementById('copyCode');
+  copyBtn.addEventListener('click', function(){
+    function done(){
+      copyBtn.textContent = 'Copied!';
+      setTimeout(function(){ copyBtn.textContent = 'Copy code'; }, 1600);
     }
-    requestAnimationFrame(step);
-  }
-  if('IntersectionObserver' in window){
-    var cio = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){
-          animateCount(e.target);
-          cio.unobserve(e.target);
-        }
-      });
-    }, {threshold:.6});
-    counters.forEach(function(el){ cio.observe(el); });
-  } else {
-    counters.forEach(function(el){ el.textContent = el.dataset.to; });
-  }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = rawCode;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); done(); } catch(err){}
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(rawCode).then(done, fallback);
+    } else {
+      fallback();
+    }
+  });
 
   /* Active nav link */
   var sections = document.querySelectorAll('main section, header.hero');
