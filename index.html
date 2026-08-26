@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saad — Software Engineer</title>
+<meta name="description" content="Saad, software engineering student in Potsdam. Python, machine learning, and products people enjoy using.">
+<script>
+  /* Set theme before paint to avoid flash. No storage used, follows system preference. */
+  document.documentElement.dataset.theme =
+    window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ============ Tokens ============ */
+  :root{
+    --bg:#0B1220;
+    --bg-soft:#0F1930;
+    --surface:#142138;
+    --surface-2:#1A2946;
+    --line:rgba(237,241,248,.09);
+    --ink:#EDF1F8;
+    --ink-soft:#A7B2c8;
+    --gold:#E6AE45;
+    --gold-strong:#F2C566;
+    --gold-text:#F0BE58;
+    --teal:#35C4A5;
+    --teal-text:#4ED9BB;
+    --glass:rgba(11,18,32,.66);
+    --shadow:0 18px 50px rgba(0,0,0,.45);
+    --radius:16px;
+  }
+  [data-theme="light"]{
+    --bg:#F5F7FB;
+    --bg-soft:#ECF0F7;
+    --surface:#FFFFFF;
+    --surface-2:#F2F5FA;
+    --line:rgba(22,34,59,.12);
+    --ink:#16223B;
+    --ink-soft:#54617B;
+    --gold:#DCA032;
+    --gold-strong:#B97F16;
+    --gold-text:#9A6A0F;
+    --teal:#159B80;
+    --teal-text:#0E8A72;
+    --glass:rgba(245,247,251,.72);
+    --shadow:0 14px 40px rgba(22,34,59,.12);
+  }
+
+  /* ============ Base ============ */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth;scroll-padding-top:96px}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Instrument Sans',system-ui,sans-serif;
+    font-size:1.0625rem;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    transition:background .35s ease,color .35s ease;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--gold);color:#0B1220}
+  a{color:inherit;text-decoration:none}
+  button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 clamp(1.25rem,4vw,2.5rem)}
+  section{padding-block:clamp(4.5rem,9vw,7.5rem)}
+
+  .skip{position:absolute;left:-999px;top:0;background:var(--gold);color:#0B1220;padding:.6rem 1rem;z-index:99;border-radius:0 0 8px 0}
+  .skip:focus{left:0}
+
+  /* ============ Type ============ */
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-height:1.12;letter-spacing:-.015em}
+  h1{font-size:clamp(2.7rem,7vw,5rem);font-weight:700}
+  h2{font-size:clamp(1.9rem,4vw,2.75rem);font-weight:600;margin-bottom:1rem}
+  h3{font-size:1.2rem;font-weight:600}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:.78rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-text);display:flex;align-items:center;gap:.9rem;margin-bottom:1.1rem;
+  }
+  .eyebrow::after{
+    content:"";height:1px;width:56px;
+    background:linear-gradient(90deg,var(--gold),var(--teal));
+  }
+  .lede{color:var(--ink-soft);max-width:56ch}
+
+  /* ============ Nav ============ */
+  #progress{
+    position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;
+    background:linear-gradient(90deg,var(--gold),var(--teal));
+    transform-origin:0 50%;transform:scaleX(0);
+  }
+  .nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(14px) saturate(1.4);
+    backdrop-filter:blur(14px) saturate(1.4);
+    border-bottom:1px solid transparent;
+    transition:border-color .3s ease,background .35s ease;
+  }
+  .nav.scrolled{border-color:var(--line)}
+  .nav-inner{
+    max-width:1120px;margin:0 auto;
+    padding:.9rem clamp(1.25rem,4vw,2.5rem);
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  }
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.25rem;letter-spacing:-.02em}
+  .logo b{color:var(--gold-text);font-weight:700}
+  .nav-links{display:flex;gap:.25rem;list-style:none}
+  .nav-links a{
+    padding:.45rem .8rem;border-radius:8px;font-size:.92rem;font-weight:500;
+    color:var(--ink-soft);transition:color .2s,background .2s;
+  }
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a.active{color:var(--gold-text)}
+  .nav-actions{display:flex;align-items:center;gap:.4rem}
+  .icon-btn{
+    width:40px;height:40px;border-radius:10px;display:grid;place-items:center;
+    border:1px solid var(--line);transition:border-color .2s,transform .2s;
+  }
+  .icon-btn:hover{border-color:var(--gold);transform:translateY(-1px)}
+  .icon-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  #themeToggle .moon{display:none}
+  [data-theme="light"] #themeToggle .sun{display:none}
+  [data-theme="light"] #themeToggle .moon{display:block}
+  #burger{display:none}
+  .mobile-menu{
+    display:none;position:fixed;top:64px;left:0;right:0;z-index:49;
+    background:var(--glass);
+    -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--line);
+    padding:.75rem clamp(1.25rem,4vw,2.5rem) 1.25rem;
+  }
+  .mobile-menu.open{display:block}
+  .mobile-menu a{display:block;padding:.75rem .25rem;font-weight:500;color:var(--ink-soft);border-bottom:1px solid var(--line)}
+  .mobile-menu a:last-child{border-bottom:none}
+  .mobile-menu a:hover{color:var(--gold-text)}
+
+  /* ============ Hero ============ */
+  .hero{
+    min-height:92vh;display:flex;align-items:center;position:relative;
+    padding-top:7rem;
+  }
+  .hero-glow{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .hero-glow::before,.hero-glow::after{
+    content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.16;
+  }
+  .hero-glow::before{width:520px;height:520px;background:var(--gold);top:-140px;right:-120px}
+  .hero-glow::after{width:460px;height:460px;background:var(--teal);bottom:-160px;left:-140px;opacity:.11}
+  [data-theme="light"] .hero-glow::before{opacity:.20}
+  [data-theme="light"] .hero-glow::after{opacity:.14}
+
+  .hero .wrap{position:relative}
+  .hero h1{max-width:15ch;margin-bottom:1.4rem}
+  .fun{
+    position:relative;color:var(--gold-text);display:inline-block;
+    transform:rotate(-1.5deg);
+  }
+  .fun svg{
+    position:absolute;left:-2%;bottom:-.18em;width:104%;height:.34em;overflow:visible;
+  }
+  .fun svg path{
+    fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;
+    stroke-dasharray:220;stroke-dashoffset:220;
+    animation:drawline 1s ease .9s forwards;
+  }
+  @keyframes drawline{to{stroke-dashoffset:0}}
+  .hero .lede{font-size:1.15rem;margin-bottom:2.2rem}
+  .cta-row{display:flex;gap:.9rem;flex-wrap:wrap;margin-bottom:3.8rem}
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    padding:.85rem 1.5rem;border-radius:12px;font-weight:600;font-size:.98rem;
+    transition:transform .2s,box-shadow .2s,background .2s,border-color .2s;
+  }
+  .btn-primary{background:var(--gold);color:#161005}
+  .btn-primary:hover{background:var(--gold-strong);transform:translateY(-2px);box-shadow:0 10px 26px rgba(230,174,69,.32)}
+  [data-theme="light"] .btn-primary{color:#fff;background:var(--gold-strong)}
+  [data-theme="light"] .btn-primary:hover{background:var(--gold)}
+  .btn-ghost{border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--gold);transform:translateY(-2px)}
+
+  .stats{
+    display:grid;grid-template-columns:repeat(4,1fr);
+    border-top:1px solid var(--line);
+  }
+  .stat{padding:1.4rem 1.2rem 0 0}
+  .stat + .stat{padding-left:1.4rem;border-left:1px solid var(--line)}
+  .stat-title{
+    font-family:'Space Grotesk',sans-serif;font-size:1.15rem;font-weight:600;color:var(--ink);
+  }
+  .stat-label{font-size:.85rem;color:var(--ink-soft);margin-top:.2rem;line-height:1.4}
+
+  /* ============ Reveal ============ */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease;transition-delay:var(--d,0s)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ============ About ============ */
+  .about-grid{display:grid;grid-template-columns:1.15fr .95fr;gap:clamp(2rem,5vw,4.5rem);align-items:start}
+  .about-copy p{color:var(--ink-soft);margin-bottom:1.1rem}
+  .about-copy p strong{color:var(--ink);font-weight:600}
+  .receipts{display:grid;gap:1rem}
+  .receipt{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.35rem 1.45rem;transition:transform .25s,border-color .25s;
+  }
+  .receipt:hover{transform:translateX(6px);border-color:var(--gold)}
+  .receipt h3{display:flex;align-items:center;gap:.6rem;margin-bottom:.45rem;font-size:1.05rem}
+  .receipt h3::before{content:"";width:9px;height:9px;background:var(--gold);border-radius:2px;flex:none}
+  .receipt p{color:var(--ink-soft);font-size:.96rem}
+
+  /* ============ Skills ============ */
+  #skills{background:var(--bg-soft);transition:background .35s ease}
+  .skill-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;margin-top:2.4rem}
+  .skill-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.7rem;transition:transform .25s,border-color .25s,box-shadow .25s;
+  }
+  .skill-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:var(--shadow)}
+  .skill-card h3{margin-bottom:.6rem}
+  .skill-card p{color:var(--ink-soft);font-size:.97rem;margin-bottom:1.1rem}
+  .tags{display:flex;flex-wrap:wrap;gap:.45rem}
+  .tag{
+    font-family:'JetBrains Mono',monospace;font-size:.74rem;
+    padding:.32rem .6rem;border-radius:7px;
+    border:1px solid var(--line);color:var(--ink-soft);
+  }
+  .tag.hot{border-color:var(--gold);color:var(--gold-text)}
+  .tag.cool{border-color:var(--teal);color:var(--teal-text)}
+
+  /* ============ Projects ============ */
+  .proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem;margin-top:2.4rem}
+  .pcard{
+    position:relative;display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;transition:transform .28s,border-color .28s,box-shadow .28s;
+  }
+  .pcard:hover{transform:translateY(-7px);border-color:var(--gold);box-shadow:var(--shadow)}
+  .pcard::after{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s;
+    background:radial-gradient(240px circle at var(--mx,50%) var(--my,20%),
+      color-mix(in srgb,var(--gold) 13%,transparent),transparent 70%);
+  }
+  .pcard:hover::after{opacity:1}
+  .pband{
+    height:118px;display:grid;place-items:center;position:relative;
+    border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:1.15rem;color:var(--gold-text);
+  }
+  .pband::before{
+    content:"";position:absolute;inset:0;opacity:.55;
+    background:radial-gradient(420px 160px at 30% 0%,color-mix(in srgb,var(--gold) 16%,transparent),transparent 70%),
+               radial-gradient(420px 160px at 90% 120%,color-mix(in srgb,var(--teal) 12%,transparent),transparent 70%);
+  }
+  .pband span{position:relative}
+  .pbody{padding:1.5rem;display:flex;flex-direction:column;flex:1}
+  .pbody h3{margin-bottom:.55rem}
+  .pbody p{color:var(--ink-soft);font-size:.96rem;margin-bottom:1.2rem;flex:1}
+  .pmeta{
+    margin-top:1rem;padding-top:.9rem;border-top:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:.74rem;color:var(--ink-soft);
+  }
+
+  /* ============ Business ============ */
+  #business{background:var(--bg-soft);transition:background .35s ease}
+  .biz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-top:2.4rem}
+  .biz-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:1.6rem;transition:transform .25s,border-color .25s;
+  }
+  .biz-card:hover{transform:translateY(-5px);border-color:var(--teal)}
+  .biz-card h3{margin-bottom:.5rem;font-size:1.08rem}
+  .biz-card p{color:var(--ink-soft);font-size:.95rem}
+
+  /* ============ Code viewer modal ============ */
+  .btn-sm{padding:.55rem 1.05rem;font-size:.88rem;border-radius:10px}
+  .pactions{margin-top:1rem}
+  .modal{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:1.2rem}
+  .modal[hidden]{display:none}
+  .modal-backdrop{position:absolute;inset:0;background:rgba(5,9,18,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  [data-theme="light"] .modal-backdrop{background:rgba(22,34,59,.38)}
+  .modal-panel{
+    position:relative;width:min(920px,100%);max-height:88vh;display:flex;flex-direction:column;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .modal-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.9rem 1.2rem;border-bottom:1px solid var(--line)}
+  .modal-file{font-size:.85rem;color:var(--gold-text)}
+  .modal-tools{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.9rem 1.2rem;border-bottom:1px solid var(--line)}
+  .modal-hint{font-size:.8rem;color:var(--ink-soft)}
+  .code{overflow:auto;padding:1.1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.6;tab-size:4}
+  .code .k{color:var(--gold-text)}
+  .code .s{color:var(--teal-text)}
+  .code .c{color:var(--ink-soft);font-style:italic}
+  .code .n{color:var(--gold-strong)}
+  body.modal-open{overflow:hidden}
+
+  /* ============ Contact ============ */
+  #contact{text-align:center}
+  #contact .eyebrow{justify-content:center}
+  #contact .eyebrow::before{
+    content:"";height:1px;width:56px;
+    background:linear-gradient(90deg,var(--teal),var(--gold));
+  }
+  #contact .lede{margin:0 auto 2.2rem}
+  #contact h2{max-width:20ch;margin-inline:auto}
+  .contact-row{display:flex;justify-content:center;gap:.9rem;flex-wrap:wrap}
+
+  /* ---- Email capture ---- */
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  .lead-form{max-width:480px;margin:0 auto 1.7rem}
+  .lead-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+  .lead-form input[type="email"]{
+    flex:1 1 240px;min-width:0;
+    padding:.85rem 1.1rem;border-radius:12px;
+    background:var(--surface);border:1px solid var(--line);color:var(--ink);
+    font:inherit;font-size:.98rem;text-align:left;
+    transition:border-color .2s,box-shadow .2s;
+  }
+  .lead-form input[type="email"]::placeholder{color:var(--ink-soft)}
+  .lead-form input[type="email"]:focus{
+    outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 22%,transparent);
+  }
+  .lead-form button[disabled]{opacity:.6;cursor:progress;transform:none;box-shadow:none}
+  .lead-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+  .lead-status{min-height:1.5rem;margin-top:.9rem;font-size:.94rem;color:var(--ink-soft)}
+  .lead-status.err{color:var(--gold-text)}
+  .lead-status a{color:var(--gold-text);text-decoration:underline}
+  .lead-done{
+    display:flex;align-items:center;justify-content:center;gap:.6rem;min-height:3.4rem;margin-top:.9rem;
+    font-family:'Space Grotesk',sans-serif;font-size:1.12rem;font-weight:600;color:var(--teal-text);
+  }
+  .lead-done svg{
+    width:22px;height:22px;flex:none;stroke:currentColor;fill:none;
+    stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:26;stroke-dashoffset:26;animation:tick .45s ease .05s forwards;
+  }
+  @keyframes tick{to{stroke-dashoffset:0}}
+
+  /* ============ Footer ============ */
+  footer{
+    border-top:1px solid var(--line);
+    padding:2rem 0 2.4rem;
+  }
+  .foot{
+    display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+    color:var(--ink-soft);font-size:.9rem;
+  }
+  .foot .mono{font-size:.8rem}
+  .foot .mono b{color:var(--gold-text);font-weight:500}
+
+  /* ============ Responsive ============ */
+  @media (max-width:900px){
+    .about-grid{grid-template-columns:1fr}
+    .skill-grid{grid-template-columns:1fr}
+    .proj-grid{grid-template-columns:1fr}
+    .biz-grid{grid-template-columns:1fr}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .stat{padding:1.2rem 1rem 0 0}
+    .stat + .stat{padding-left:0;border-left:none}
+    .stat:nth-child(even){padding-left:1.2rem;border-left:1px solid var(--line)}
+  }
+  @media (max-width:820px){
+    .nav-links{display:none}
+    #burger{display:grid}
+  }
+  @media (max-width:520px){
+    .hero{padding-top:6rem;min-height:auto;padding-bottom:1rem}
+    .stat-title{font-size:1.02rem}
+  }
+
+  /* ============ Reduced motion ============ */
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{animation:none!important;transition:none!important}
+    .reveal{opacity:1;transform:none}
+    .fun svg path{stroke-dashoffset:0}
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#about">Skip to content</a>
+<div id="progress" aria-hidden="true"></div>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="logo">MetalJewel<b>.</b></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#business">Business</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle dark and light mode">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 13.2A8.1 8.1 0 0 1 10.8 4a8.1 8.1 0 1 0 9.2 9.2Z"/></svg>
+      </button>
+      <button class="icon-btn" id="burger" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about">About</a>
+  <a href="#skills">Skills</a>
+  <a href="#projects">Projects</a>
+  <a href="#business">Business</a>
+  <a href="#contact">Contact</a>
+</div>
+
+<header class="hero" id="top">
+  <div class="hero-glow" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="eyebrow reveal">B.Sc. Software Engineering · Potsdam</p>
+    <h1 class="reveal" style="--d:.08s">
+      Serious about
+      <span class="fun">fun<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 20 3, 35 11, 52 6 S 84 4, 98 7"/></svg></span>ctional software.
+    </h1>
+    <p class="lede reveal" style="--d:.16s">
+      I'm Saad, a software engineering student at the University of Europe
+      for Applied Sciences in Potsdam. I build working products in Python, explain them in
+      plain language, and keep the team in a good mood while we ship.
+    </p>
+    <div class="cta-row reveal" style="--d:.24s">
+      <a class="btn btn-primary" href="#projects">See my work</a>
+      <a class="btn btn-ghost" href="#contact">Get in touch</a>
+    </div>
+    <div class="stats reveal" style="--d:.32s">
+      <div class="stat">
+        <div class="stat-title">Python-first</div>
+        <div class="stat-label">Ideas to working software</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Machine learning</div>
+        <div class="stat-label">Models people can follow</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Team player</div>
+        <div class="stat-label">Usually the one presenting</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Business-aware</div>
+        <div class="stat-label">Startup habits, corporate context</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="about">
+  <div class="wrap">
+    <p class="eyebrow reveal">About</p>
+    <div class="about-grid">
+      <div class="about-copy">
+        <h2 class="reveal">Good code, good company.</h2>
+        <p class="reveal" style="--d:.08s">
+          <strong>Python is home base.</strong> If I can sketch an idea, I can usually ship it.
+          Java covers my backend work,
+          C++ my parallel programming, and machine learning is where the two things I enjoy
+          most (building and figuring things out) overlap.
+        </p>
+        <p class="reveal" style="--d:.14s">
+          The part that doesn't show up in a repo: I like presenting, and I've gotten good at
+          reading a room. A course called Employability: Business English turned out to be less about
+          English and more about handling people well. Group projects go smoother when someone
+          actually cares about the vibe. That's usually me.
+        </p>
+      </div>
+      <div class="receipts">
+        <div class="receipt reveal" style="--d:.1s">
+          <h3>Self-taught when it counted</h3>
+          <p>When Computer Architecture lectures didn't click, I worked through the material myself, from logic gates up, and finished the course comfortably.</p>
+        </div>
+        <div class="receipt reveal" style="--d:.18s">
+          <h3>Does the unglamorous work</h3>
+          <p>Statistics was never going to be my favorite subject. I studied like it was, and it paid off.</p>
+        </div>
+        <div class="receipt reveal" style="--d:.26s">
+          <h3>Speaks human</h3>
+          <p>I can walk a non-technical person through complex code without losing them. It's made me the default demo-giver in every group project so far.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="wrap">
+    <p class="eyebrow reveal">Technical arsenal</p>
+    <h2 class="reveal">What I build with.</h2>
+    <p class="lede reveal" style="--d:.06s">Tools listed in order of how often they save the day.</p>
+    <div class="skill-grid">
+      <div class="skill-card reveal" style="--d:.08s">
+        <h3>Python &amp; product building</h3>
+        <p>My strongest tool by a distance. Frontends, backends, scripts, client–server apps: whatever the idea needs, Python gets it standing. Clean enough that teammates can pick up where I left off.</p>
+        <div class="tags">
+          <span class="tag hot">Python</span>
+          <span class="tag">Full-stack apps</span>
+          <span class="tag">Client–server</span>
+        </div>
+      </div>
+      <div class="skill-card reveal" style="--d:.14s">
+        <h3>AI &amp; machine learning</h3>
+        <p>Purpose-built models, from the two healthcare projects featured below to smaller ones made purely for fun. Sharpened in the Machine Learning &amp; Smart Systems and Artificial Intelligence courses.</p>
+        <div class="tags">
+          <span class="tag hot">Classification</span>
+          <span class="tag">Model design</span>
+          <span class="tag">Explainability</span>
+        </div>
+      </div>
+      <div class="skill-card reveal" style="--d:.2s">
+        <h3>Systems &amp; backend</h3>
+        <p>Java for backend services, written with full effort and easy handovers in mind. C++ for parallel programming, where I pay attention to the logic and what it costs at runtime.</p>
+        <div class="tags">
+          <span class="tag">Java</span>
+          <span class="tag">C++</span>
+          <span class="tag">Parallel programming</span>
+        </div>
+      </div>
+      <div class="skill-card reveal" style="--d:.26s">
+        <h3>Data &amp; research</h3>
+        <p>Comfortable filtering and shaping large datasets until they answer a real question. Trained in quantitative and qualitative methods, so my reports come with the data to back them up.</p>
+        <div class="tags">
+          <span class="tag cool">Big data</span>
+          <span class="tag cool">Quant &amp; qual methods</span>
+          <span class="tag">Reporting</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <p class="eyebrow reveal">Featured projects</p>
+    <h2 class="reveal">Built to be used.</h2>
+    <p class="lede reveal" style="--d:.06s">Course projects, treated like real products.</p>
+    <div class="proj-grid">
+      <article class="pcard reveal" style="--d:.08s">
+        <div class="pband"><span>Gym web app</span></div>
+        <div class="pbody">
+          <h3>Gym Membership Management Platform</h3>
+          <p>A full web platform for running a gym: member accounts, plans, and day-to-day operations. Frontend and backend written in Python, talking to a live server, with member-facing touches like workout plan views and voting on class times.</p>
+          <div class="tags">
+            <span class="tag hot">Python</span>
+            <span class="tag">Full-stack</span>
+            <span class="tag">Client–server</span>
+          </div>
+          <div class="pmeta">Python front to back · runs end to end</div>
+        </div>
+      </article>
+      <article class="pcard reveal" style="--d:.16s">
+        <div class="pband"><span>Staff training app</span></div>
+        <div class="pbody">
+          <h3>Restaurant Staff Management &amp; Training App</h3>
+          <p>Team build from Software Engineering I: a tool restaurant managers use to organize staff and run training. We had one rule for every design decision: a shift lead should learn it in one sitting, no manual.</p>
+          <div class="tags">
+            <span class="tag">Team project</span>
+            <span class="tag cool">Usability-first</span>
+            <span class="tag">Software engineering</span>
+          </div>
+          <div class="pmeta">Collaborative build · Software Engineering I</div>
+        </div>
+      </article>
+      <article class="pcard reveal" style="--d:.24s">
+        <div class="pband"><span>Patient classifier</span></div>
+        <div class="pbody">
+          <h3>Healthcare Patient Identification Algorithm</h3>
+          <p>A machine learning model that categorizes patient records by smoking status and age group. Accuracy mattered, and so did explainability: it's built so someone outside ML can follow why it decides what it decides.</p>
+          <div class="tags">
+            <span class="tag hot">Machine learning</span>
+            <span class="tag">Python</span>
+            <span class="tag cool">Healthcare data</span>
+          </div>
+          <div class="pmeta">ML classifier · built for clarity</div>
+        </div>
+      </article>
+      <article class="pcard reveal" style="--d:.32s">
+        <div class="pband"><span>Heart attack risk model</span></div>
+        <div class="pbody">
+          <h3>Heart Attack Risk Prediction</h3>
+          <p>A complete logistic regression pipeline on 8,763 patient records from Kaggle: blood-pressure feature engineering, stratified splitting, leak-free scaling, and balanced class weights. Exploration flagged the dataset as synthetic (every feature correlation under 0.02), so the honest finding is methodological: a correct pipeline can't invent signal that isn't there.</p>
+          <div class="tags">
+            <span class="tag hot">Python</span>
+            <span class="tag">scikit-learn</span>
+            <span class="tag cool">Logistic regression</span>
+          </div>
+          <div class="pactions">
+            <button class="btn btn-primary btn-sm" data-open-code>View code &amp; dataset</button>
+          </div>
+          <div class="pmeta">Machine Learning &amp; Smart Systems · code free to reuse</div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="business">
+  <div class="wrap">
+    <p class="eyebrow reveal">Business acumen</p>
+    <h2 class="reveal">Engineering with business sense.</h2>
+    <p class="lede reveal" style="--d:.06s">Software gets built inside companies. I've studied how those work too.</p>
+    <div class="biz-grid">
+      <div class="biz-card reveal" style="--d:.08s">
+        <h3>Startup Management</h3>
+        <p>Running lean: tight scoping, fast decisions, and keeping a small team moving without burning anyone out.</p>
+      </div>
+      <div class="biz-card reveal" style="--d:.16s">
+        <h3>Corporate Management</h3>
+        <p>How larger organizations actually run: delegation, office functions, and what makes a team gel.</p>
+      </div>
+      <div class="biz-card reveal" style="--d:.24s">
+        <h3>Digital Media &amp; Communication</h3>
+        <p>Reading market needs and turning them into presentations people act on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <p class="eyebrow reveal">Contact</p>
+    <h2 class="reveal">Let's build something people enjoy using.</h2>
+    <p class="lede reveal" style="--d:.08s">
+      Open to working-student roles, internships, and interesting projects.
+      If something here caught your eye, my inbox is open.
+    </p>
+    <form class="lead-form reveal" id="leadForm" style="--d:.14s" novalidate>
+      <label class="sr-only" for="leadEmail">Your email address</label>
+      <div class="lead-row">
+        <input id="leadEmail" name="email" type="email" inputmode="email" autocomplete="email"
+               placeholder="please enter your email" required>
+        <button class="btn btn-primary" type="submit">Send</button>
+      </div>
+      <input class="lead-hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <p class="lead-status" id="leadStatus" role="status" aria-live="polite"></p>
+    </form>
+    <div class="contact-row reveal" style="--d:.22s">
+      <a class="btn btn-primary" href="mailto:saad.shahzad1990@gmail.com">Email me</a>
+      <a class="btn btn-ghost" href="https://www.linkedin.com/in/saad-shahzad-6345722b5/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="btn btn-ghost" href="https://github.com/saadshahzad1990-droid" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Saad · Software Engineering, University of Europe for Applied Sciences, Potsdam</span>
+    <span class="mono">putting the <b>fun</b> in functional since 2025</span>
+  </div>
+</footer>
+
+<div class="modal" id="codeModal" hidden>
+  <div class="modal-backdrop" data-close-code></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-label="Heart attack prediction code and dataset">
+    <div class="modal-head">
+      <span class="mono modal-file">heart_attack_prediction.py</span>
+      <button class="icon-btn" data-close-code aria-label="Close code viewer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-tools">
+      <button class="btn btn-primary btn-sm" id="copyCode">Copy code</button>
+      <a class="btn btn-ghost btn-sm" href="https://www.kaggle.com/datasets/iamsouravbanerjee/heart-attack-prediction-dataset" target="_blank" rel="noopener">Dataset on Kaggle</a>
+      <span class="modal-hint">Runs on pandas, numpy, scikit-learn, matplotlib, seaborn. Point DATA_PATH at the Kaggle CSV.</span>
+    </div>
+    <pre class="code"><code id="codeOut"></code></pre>
+  </div>
+</div>
+
+<script type="text/plain" id="mlSource">
+"""
+Heart Attack Risk Prediction with Logistic Regression
+======================================================
+Machine Learning and Smart Systems - SS 2026
+Dataset: Heart Attack Prediction Dataset (Kaggle, iamsouravbanerjee)
+         https://www.kaggle.com/datasets/iamsouravbanerjee/heart-attack-prediction-dataset
+
+The script follows the eight required project steps:
+  1. Dataset exploration
+  2. Data preprocessing strategy
+  3. Train-test split with stratification
+  4. Logistic regression model setup
+  5. Model training with convergence monitoring
+  6. Prediction generation and probability thresholding
+  7. Performance evaluation (accuracy, precision, recall, F1, confusion matrix)
+  8. Results interpretation (coefficients / feature importance)
+
+Run:  python heart_attack_prediction.py
+Requires: pandas, numpy, scikit-learn, matplotlib, seaborn
+"""
+
+import os
+
+import matplotlib
+
+matplotlib.use("Agg")  # allows the script to run without a display
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    ConfusionMatrixDisplay,
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    roc_curve,
+)
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
+RANDOM_STATE = 42          # fixed seed so results are reproducible
+FIG_DIR = os.path.join(os.path.dirname(__file__), "..", "figures")
+DATA_PATH = os.path.join(
+    os.path.dirname(__file__), "..", "data", "heart_attack_prediction_dataset.csv"
+)
+os.makedirs(FIG_DIR, exist_ok=True)
+
+
+def save_fig(name):
+    """Save the current matplotlib figure into the figures folder."""
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIG_DIR, name), dpi=150)
+    plt.close()
+
+
+# ---------------------------------------------------------------------------
+# STEP 1 - DATASET EXPLORATION
+# ---------------------------------------------------------------------------
+print("=" * 70)
+print("STEP 1: Dataset exploration")
+print("=" * 70)
+
+df = pd.read_csv(DATA_PATH)
+print(f"Shape: {df.shape[0]} rows x {df.shape[1]} columns")
+print(f"Missing values total: {df.isna().sum().sum()}")
+print(f"Duplicate rows: {df.duplicated().sum()}")
+
+# Class balance of the target variable
+target_counts = df["Heart Attack Risk"].value_counts()
+print("\nTarget distribution (Heart Attack Risk):")
+print(target_counts)
+print(f"Positive rate: {target_counts[1] / len(df):.1%}")
+
+# Figure: class balance
+plt.figure(figsize=(5, 4))
+ax = target_counts.plot(kind="bar", color=["#4C72B0", "#C44E52"])
+ax.set_xticklabels(["No risk (0)", "At risk (1)"], rotation=0)
+ax.set_ylabel("Number of patients")
+ax.set_title("Target class distribution")
+for i, v in enumerate(target_counts):
+    ax.text(i, v + 50, str(v), ha="center")
+save_fig("fig1_class_distribution.png")
+
+# Figure: distributions of key numeric features
+numeric_preview = ["Age", "Cholesterol", "Heart Rate", "BMI", "Triglycerides", "Exercise Hours Per Week"]
+fig, axes = plt.subplots(2, 3, figsize=(12, 6))
+for ax, col in zip(axes.ravel(), numeric_preview):
+    df[col].hist(bins=30, ax=ax, color="#4C72B0", edgecolor="white")
+    ax.set_title(col, fontsize=10)
+fig.suptitle("Distributions of key numeric features")
+save_fig("fig2_feature_distributions.png")
+
+# ---------------------------------------------------------------------------
+# STEP 2 - DATA PREPROCESSING AND FEATURE ENGINEERING
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 2: Preprocessing and feature engineering")
+print("=" * 70)
+
+data = df.copy()
+
+# 2a. 'Blood Pressure' is stored as a string like "158/88".
+#     We split it into two numeric features: systolic and diastolic pressure.
+bp = data["Blood Pressure"].str.split("/", expand=True).astype(int)
+data["Systolic BP"] = bp[0]
+data["Diastolic BP"] = bp[1]
+data = data.drop(columns=["Blood Pressure"])
+
+# 2b. Encode binary categorical feature 'Sex' (Male=1, Female=0).
+data["Sex"] = (data["Sex"] == "Male").astype(int)
+
+# 2c. 'Diet' is ordinal (Unhealthy < Average < Healthy) -> ordinal encoding.
+data["Diet"] = data["Diet"].map({"Unhealthy": 0, "Average": 1, "Healthy": 2})
+
+# 2d. Drop identifier and geographic columns. Patient ID carries no medical
+#     information; Country/Continent/Hemisphere would add ~25 dummy columns
+#     with no plausible causal link to individual cardiac risk.
+data = data.drop(columns=["Patient ID", "Country", "Continent", "Hemisphere"])
+
+feature_names = [c for c in data.columns if c != "Heart Attack Risk"]
+X = data[feature_names]
+y = data["Heart Attack Risk"]
+print(f"Final feature matrix: {X.shape[1]} features, {X.shape[0]} samples")
+
+# Figure: correlation of each feature with the target
+corr = data.corr(numeric_only=True)["Heart Attack Risk"].drop("Heart Attack Risk")
+plt.figure(figsize=(7, 6))
+corr.sort_values().plot(kind="barh", color="#4C72B0")
+plt.title("Correlation of each feature with Heart Attack Risk")
+plt.xlabel("Pearson correlation")
+save_fig("fig3_target_correlations.png")
+print("\nStrongest absolute correlations with target:")
+print(corr.abs().sort_values(ascending=False).head(5).round(4))
+
+# ---------------------------------------------------------------------------
+# STEP 3 - STRATIFIED TRAIN-TEST SPLIT
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 3: Train-test split (80/20, stratified)")
+print("=" * 70)
+
+# stratify=y keeps the 64/36 class ratio identical in both subsets,
+# random_state makes the split reproducible.
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, stratify=y, random_state=RANDOM_STATE
+)
+print(f"Train: {X_train.shape[0]} samples ({y_train.mean():.1%} positive)")
+print(f"Test:  {X_test.shape[0]} samples ({y_test.mean():.1%} positive)")
+
+# Scaling is fitted ONLY on the training data to avoid data leakage,
+# then applied to both subsets. Logistic regression benefits from
+# standardized features (faster convergence, comparable coefficients).
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_test_s = scaler.transform(X_test)
+
+# ---------------------------------------------------------------------------
+# STEP 4 & 5 - MODEL SETUP AND TRAINING
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 4/5: Logistic regression setup and training")
+print("=" * 70)
+
+# Model: P(y=1|x) = 1 / (1 + e^-(b0 + b1*x1 + ... + bn*xn))
+# - solver='lbfgs': quasi-Newton optimizer, standard choice for L2 penalty
+# - C=1.0: default L2 regularization strength (inverse)
+# - class_weight='balanced': re-weights classes inversely proportional to
+#   their frequency; without it, the imbalanced data (64% negatives) pushes
+#   the model to always predict class 0.
+model = LogisticRegression(
+    solver="lbfgs",
+    C=1.0,                     # inverse of the default L2 regularization strength
+    class_weight="balanced",
+    max_iter=1000,
+    random_state=RANDOM_STATE,
+)
+model.fit(X_train_s, y_train)
+print(f"Converged in {model.n_iter_[0]} iterations (limit: 1000)")
+
+# ---------------------------------------------------------------------------
+# STEP 6 - PREDICTION GENERATION AND THRESHOLDING
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 6: Predictions and probability thresholding")
+print("=" * 70)
+
+# predict_proba returns P(y=1|x); the default decision threshold is 0.5.
+y_prob = model.predict_proba(X_test_s)[:, 1]
+y_pred = (y_prob >= 0.5).astype(int)
+print(f"Predicted probability range: [{y_prob.min():.3f}, {y_prob.max():.3f}]")
+print(f"Predicted positives at t=0.5: {y_pred.sum()} of {len(y_pred)}")
+
+# In a medical screening context, missing a true at-risk patient (false negative)
+# is worse than a false alarm. We therefore also inspect a lower threshold
+# that trades precision for recall.
+y_pred_040 = (y_prob >= 0.40).astype(int)
+
+# ---------------------------------------------------------------------------
+# STEP 7 - PERFORMANCE EVALUATION
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 7: Evaluation metrics")
+print("=" * 70)
+
+def report(name, y_true, y_hat):
+    acc = accuracy_score(y_true, y_hat)
+    prec = precision_score(y_true, y_hat, zero_division=0)
+    rec = recall_score(y_true, y_hat, zero_division=0)
+    f1 = f1_score(y_true, y_hat, zero_division=0)
+    print(f"{name:<22} accuracy={acc:.3f}  precision={prec:.3f}  "
+          f"recall={rec:.3f}  F1={f1:.3f}")
+    return acc, prec, rec, f1
+
+acc, prec, rec, f1 = report("Threshold 0.50", y_test, y_pred)
+report("Threshold 0.40", y_test, y_pred_040)
+auc = roc_auc_score(y_test, y_prob)
+print(f"ROC-AUC: {auc:.3f}  (0.5 = random guessing)")
+
+print("\nClassification report (threshold 0.50):")
+print(classification_report(y_test, y_pred, target_names=["No risk", "At risk"]))
+
+# Figure: confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+disp = ConfusionMatrixDisplay(cm, display_labels=["No risk", "At risk"])
+disp.plot(cmap="Blues", values_format="d")
+plt.title("Confusion matrix (test set, threshold 0.5)")
+save_fig("fig4_confusion_matrix.png")
+
+# Figure: ROC curve
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+plt.figure(figsize=(5, 5))
+plt.plot(fpr, tpr, label=f"Logistic regression (AUC = {auc:.3f})")
+plt.plot([0, 1], [0, 1], "k--", label="Random classifier (AUC = 0.5)")
+plt.xlabel("False positive rate")
+plt.ylabel("True positive rate")
+plt.title("ROC curve")
+plt.legend()
+save_fig("fig5_roc_curve.png")
+
+# ---------------------------------------------------------------------------
+# STEP 8 - RESULTS INTERPRETATION: COEFFICIENTS / FEATURE IMPORTANCE
+# ---------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("STEP 8: Coefficient analysis")
+print("=" * 70)
+
+coefs = pd.Series(model.coef_[0], index=feature_names).sort_values()
+print("All standardized coefficients (log-odds per 1 SD increase):")
+print(coefs.round(4))
+
+# Odds ratios: e^beta tells how the odds change per 1 SD feature increase
+print("\nTop 5 features by absolute effect (odds ratio):")
+top = coefs.abs().sort_values(ascending=False).head(5)
+for feat in top.index:
+    print(f"  {feat:<28} beta={coefs[feat]:+.4f}  OR={np.exp(coefs[feat]):.3f}")
+
+plt.figure(figsize=(7, 6))
+colors = ["#C44E52" if v > 0 else "#4C72B0" for v in coefs]
+coefs.plot(kind="barh", color=colors)
+plt.axvline(0, color="black", lw=0.8)
+plt.title("Logistic regression coefficients (standardized features)")
+plt.xlabel("Coefficient (log-odds)")
+save_fig("fig6_coefficients.png")
+
+print("\nAll figures saved to:", os.path.abspath(FIG_DIR))
+print("Done.")
+</script>
+
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Theme toggle (in-memory; defaults to system preference) */
+  var root = document.documentElement;
+  document.getElementById('themeToggle').addEventListener('click', function(){
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  });
+
+  /* Mobile menu */
+  var burger = document.getElementById('burger');
+  var menu = document.getElementById('mobileMenu');
+  burger.addEventListener('click', function(){
+    var open = menu.classList.toggle('open');
+    burger.setAttribute('aria-expanded', open);
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  });
+  menu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      menu.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* Nav state + scroll progress */
+  var nav = document.getElementById('nav');
+  var progress = document.getElementById('progress');
+  function onScroll(){
+    var y = window.scrollY;
+    nav.classList.toggle('scrolled', y > 12);
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    progress.style.transform = 'scaleX(' + (max > 0 ? y / max : 0) + ')';
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  /* Scroll-reveal */
+  var revealed = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !reduceMotion){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:.15, rootMargin:'0px 0px -6% 0px'});
+    revealed.forEach(function(el){ io.observe(el); });
+  } else {
+    revealed.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* Code viewer modal */
+  var modal = document.getElementById('codeModal');
+  var codeOut = document.getElementById('codeOut');
+  var rawCode = document.getElementById('mlSource').textContent.trim();
+  var highlighted = false;
+
+  function hlPython(src){
+    var esc = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return esc.replace(
+      /("""[\s\S]*?"""|'''[\s\S]*?'''|"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|#[^\n]*|\b\d+(?:\.\d+)?\b|\b(?:import|from|as|def|return|if|elif|else|for|in|not|and|or|with|class|lambda|None|True|False|print)\b)/g,
+      function(m){
+        if(m.charAt(0) === '#') return '<span class="c">' + m + '</span>';
+        if(m.charAt(0) === '"' || m.charAt(0) === "'") return '<span class="s">' + m + '</span>';
+        if(/^\d/.test(m)) return '<span class="n">' + m + '</span>';
+        return '<span class="k">' + m + '</span>';
+      }
+    );
+  }
+  function openModal(){
+    if(!highlighted){ codeOut.innerHTML = hlPython(rawCode); highlighted = true; }
+    modal.hidden = false;
+    document.body.classList.add('modal-open');
+    modal.querySelector('.icon-btn').focus();
+  }
+  function closeModal(){
+    modal.hidden = true;
+    document.body.classList.remove('modal-open');
+  }
+  document.querySelectorAll('[data-open-code]').forEach(function(b){ b.addEventListener('click', openModal); });
+  document.querySelectorAll('[data-close-code]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && !modal.hidden) closeModal();
+  });
+
+  /* Copy code to clipboard */
+  var copyBtn = document.getElementById('copyCode');
+  copyBtn.addEventListener('click', function(){
+    function done(){
+      copyBtn.textContent = 'Copied!';
+      setTimeout(function(){ copyBtn.textContent = 'Copy code'; }, 1600);
+    }
+    function fallback(){
+      var ta = document.createElement('textarea');
+      ta.value = rawCode;
+      document.body.appendChild(ta);
+      ta.select();
+      try{ document.execCommand('copy'); done(); } catch(err){}
+      document.body.removeChild(ta);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(rawCode).then(done, fallback);
+    } else {
+      fallback();
+    }
+  });
+
+  /* Active nav link */
+  var sections = document.querySelectorAll('main section, header.hero');
+  var links = document.querySelectorAll('.nav-links a');
+  if('IntersectionObserver' in window){
+    var sio = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(l){
+            l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id);
+          });
+        }
+      });
+    }, {rootMargin:'-45% 0px -50% 0px'});
+    sections.forEach(function(s){ if(s.id) sio.observe(s); });
+  }
+
+  /* Pointer glow on project cards */
+  if(window.matchMedia('(hover: hover)').matches){
+    document.querySelectorAll('.pcard').forEach(function(card){
+      card.addEventListener('mousemove', function(e){
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+      });
+    });
+  }
+
+  /* ---- Email capture ----
+     A static page can't send mail by itself, so the address is posted to a form
+     service that forwards it to CONTACT_EMAIL.
+       Formspree  formspree.io  -> endpoint looks like https://formspree.io/f/abcdwxyz
+       Web3Forms  web3forms.com -> https://api.web3forms.com/submit  (see the note in the body below)
+     Until FORM_ENDPOINT is real, the form says so instead of faking a success. */
+  var FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+  var CONTACT_EMAIL = 'saad.shahzad1990@gmail.com';
+
+  var leadForm   = document.getElementById('leadForm');
+  var leadStatus = document.getElementById('leadStatus');
+  var leadInput  = document.getElementById('leadEmail');
+  var leadBtn    = leadForm.querySelector('button[type="submit"]');
+
+  function leadSay(msg, isError){
+    leadStatus.className = isError ? 'lead-status err' : 'lead-status';
+    leadStatus.textContent = msg;
+  }
+  function leadFail(msg){
+    leadStatus.className = 'lead-status err';
+    leadStatus.innerHTML = msg + ' <a href="mailto:' + CONTACT_EMAIL + '">Email me directly</a>.';
+  }
+  function leadThanks(){
+    leadForm.querySelector('.lead-row').remove();
+    leadStatus.className = 'lead-done';
+    leadStatus.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>' +
+      'Thank you, I will contact you soon.';
+  }
+
+  leadForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(leadForm.querySelector('[name="_gotcha"]').value) return;  /* bot trap */
+
+    var email = leadInput.value.trim();
+    if(!email || !leadInput.checkValidity()){
+      leadSay("That email doesn't look right \u2014 mind checking it?", true);
+      leadInput.focus();
+      return;
+    }
+    if(FORM_ENDPOINT.indexOf('YOUR_FORM_ID') > -1){
+      leadFail("This form isn't connected yet.");
+      return;
+    }
+
+    leadBtn.disabled = true;
+    leadSay('Sending\u2026', false);
+
+    fetch(FORM_ENDPOINT, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({
+        email: email,
+        _subject: 'New contact from your portfolio site'
+        /* Web3Forms instead of Formspree: add  access_key: 'your-key-here'  and drop _subject */
+      })
+    }).then(function(res){
+      if(!res.ok) throw new Error(res.status);
+      leadThanks();
+    }).catch(function(){
+      leadBtn.disabled = false;
+      leadFail("Couldn't send that just now.");
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
