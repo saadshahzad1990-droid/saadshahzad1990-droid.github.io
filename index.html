@@ -1092,12 +1092,10 @@ print("Done.")
   }
 
   /* ---- Email capture ----
-     A static page can't send mail by itself, so the address is posted to a form
-     service that forwards it to CONTACT_EMAIL.
-       Formspree  formspree.io  -> endpoint looks like https://formspree.io/f/abcdwxyz
-       Web3Forms  web3forms.com -> https://api.web3forms.com/submit  (see the note in the body below)
-     Until FORM_ENDPOINT is real, the form says so instead of faking a success. */
-  var FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+     Posts to the serverless function in api/contact.js, which stores the address
+     in Neon and sends two emails through Resend: a notification to Saad, and a
+     confirmation to whoever just signed up. Setup steps are in README.md. */
+  var FORM_ENDPOINT = '/api/contact';
   var CONTACT_EMAIL = 'saad.shahzad1990@gmail.com';
 
   var leadForm   = document.getElementById('leadForm');
@@ -1131,25 +1129,25 @@ print("Done.")
       leadInput.focus();
       return;
     }
-    if(FORM_ENDPOINT.indexOf('YOUR_FORM_ID') > -1){
-      leadFail("This form isn't connected yet.");
-      return;
-    }
-
     leadBtn.disabled = true;
     leadSay('Sending\u2026', false);
 
     fetch(FORM_ENDPOINT, {
       method:'POST',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify({
-        email: email,
-        _subject: 'New contact from your portfolio site'
-        /* Web3Forms instead of Formspree: add  access_key: 'your-key-here'  and drop _subject */
-      })
+      body: JSON.stringify({ email: email, source: 'contact' })
     }).then(function(res){
-      if(!res.ok) throw new Error(res.status);
-      leadThanks();
+      if(res.ok){ leadThanks(); return; }
+      /* 400 and 429 are the visitor's to fix, and the server words them better
+         than we can guess. Anything else is our problem, so offer the mailto. */
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        leadBtn.disabled = false;
+        if((res.status === 400 || res.status === 429) && data.error){
+          leadSay(data.error, true);
+        } else {
+          leadFail("Couldn't send that just now.");
+        }
+      });
     }).catch(function(){
       leadBtn.disabled = false;
       leadFail("Couldn't send that just now.");

@@ -1,0 +1,13 @@
+{
+  "name": "saad-contact-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Contact capture for metaljewel.com - stores to Neon, sends via Resend.",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4"
+  },
+  "scripts": {
+    "test": "node test/api.test.mjs"
+  }
+}
