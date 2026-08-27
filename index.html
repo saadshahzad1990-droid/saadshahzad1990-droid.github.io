@@ -225,8 +225,8 @@
   .stat-label{font-size:.85rem;color:var(--ink-soft);margin-top:.2rem;line-height:1.4}
 
   /* ============ Reveal ============ */
-  /* An expo-out curve: quick to commit, long slow settle. Reads as "fluid"
-     where a plain ease reads as "sliding". */
+  /* Fallback path: one-shot transition driven by IntersectionObserver.
+     An expo-out curve, so it settles rather than slides. */
   .reveal{
     opacity:0;transform:translateY(22px) scale(.988);
     transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);
@@ -234,6 +234,66 @@
     will-change:opacity,transform;
   }
   .reveal.in{opacity:1;transform:none;will-change:auto}
+
+  @keyframes rise-in{
+    from{opacity:0;transform:translateY(34px) scale(.978);filter:blur(5px)}
+    60% {opacity:1}
+    to  {opacity:1;transform:none;filter:blur(0)}
+  }
+  @keyframes hero-drift{
+    from{transform:translateY(0) scale(1)}
+    to  {transform:translateY(-24px) scale(1.025)}
+  }
+  @keyframes hero-recede{
+    from{opacity:1;transform:none}
+    to  {opacity:.5;transform:translateY(-22px)}
+  }
+
+  /* Scroll-driven path. The element's progress through the viewport IS the
+     animation clock, so motion tracks the scroll wheel instead of firing once
+     and running on its own timer. This is the difference between "it appeared"
+     and "it is arriving". Chrome, Edge and recent Safari; everything else keeps
+     the transition above. */
+  @supports (animation-timeline: view()){
+    @media (prefers-reduced-motion:no-preference){
+      main .reveal{
+        opacity:1;transform:none;transition:none;will-change:auto;
+        animation:rise-in linear both;
+        animation-timeline:view();
+        animation-range:entry 2% entry 72%;
+      }
+      /* Belt and braces. A scroll-driven animation only completes if the page
+         can scroll far enough through its range - which is not guaranteed for
+         the last thing on the page, or for anything taller than the viewport on
+         a small screen. Left alone, such an element would sit half-faded
+         forever. Once it is genuinely on screen, drop the animation and pin the
+         end state. */
+      main .reveal.settled{animation:none;opacity:1;transform:none;filter:none}
+      /* Cards resolve a touch sooner, so a row of them lands in sequence
+         rather than all together. */
+      .skill-card,.pcard,.biz-card,.receipt,.privacy-card{
+        animation-range:entry 0% entry 62%;
+      }
+      /* Headings lead their section slightly. */
+      main section > .wrap > h2.reveal,
+      main section > .wrap > .eyebrow.reveal{
+        animation-range:entry 0% entry 55%;
+      }
+
+      /* The hero is already on screen at load, so it keeps its entrance
+         transition. What scroll drives here is the departure. */
+      .hero-portrait img{
+        animation:hero-drift linear both;
+        animation-timeline:scroll(root);
+        animation-range:0 80vh;
+      }
+      .hero-copy{
+        animation:hero-recede linear both;
+        animation-timeline:scroll(root);
+        animation-range:0 72vh;
+      }
+    }
+  }
 
   /* ============ About ============ */
   .about-grid{display:grid;grid-template-columns:1.15fr .95fr;gap:clamp(2rem,5vw,4.5rem);align-items:start}
@@ -408,6 +468,75 @@
     .phone-row select{max-width:none;width:100%}
   }
 
+  /* ============ Wave dividers ============ */
+  /* Three tiling sine strips drifting at different speeds and directions.
+     Nothing here simulates fluid - the illusion comes from the layers
+     disagreeing about pace, which is what reads as water. */
+  .wave-sep{
+    position:relative;height:88px;overflow:hidden;pointer-events:none;
+    margin-block:0;
+  }
+  /* The sections either side use different backgrounds, and butting them
+     together is what produced the hard line. Let the divider carry the change
+     instead: the gradient starts on the colour above and finishes on the colour
+     below, so both joins are seamless and the step disappears. */
+  .wave-sep--to-soft{background:linear-gradient(to bottom,var(--bg) 0%,var(--bg-soft) 100%)}
+  .wave-sep--from-soft{background:linear-gradient(to bottom,var(--bg-soft) 0%,var(--bg) 100%)}
+  .wave-sep::before,.wave-sep::after,.wave-sep i{
+    content:"";position:absolute;left:0;top:0;height:100%;width:calc(100% + 260px);
+    background-repeat:repeat-x;background-position:0 50%;background-size:260px 44px;
+  }
+  .wave-sep::before{--drift:wave-a;--drift-time:19s;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNjAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCAyNjAgNDQiPjxwYXRoIGQ9Ik0wLjAgMjIuMDAgTDMuNiAyMi43MCBMNy4yIDIzLjM5IEwxMC44IDI0LjA3IEwxNC40IDI0Ljc0IEwxOC4xIDI1LjM4IEwyMS43IDI2LjAwIEwyNS4zIDI2LjU5IEwyOC45IDI3LjE0IEwzMi41IDI3LjY2IEwzNi4xIDI4LjEzIEwzOS43IDI4LjU1IEw0My4zIDI4LjkzIEw0Ni45IDI5LjI1IEw1MC42IDI5LjUyIEw1NC4yIDI5LjczIEw1Ny44IDI5Ljg4IEw2MS40IDI5Ljk3IEw2NS4wIDMwLjAwIEw2OC42IDI5Ljk3IEw3Mi4yIDI5Ljg4IEw3NS44IDI5LjczIEw3OS40IDI5LjUyIEw4My4xIDI5LjI1IEw4Ni43IDI4LjkzIEw5MC4zIDI4LjU1IEw5My45IDI4LjEzIEw5Ny41IDI3LjY2IEwxMDEuMSAyNy4xNCBMMTA0LjcgMjYuNTkgTDEwOC4zIDI2LjAwIEwxMTEuOSAyNS4zOCBMMTE1LjYgMjQuNzQgTDExOS4yIDI0LjA3IEwxMjIuOCAyMy4zOSBMMTI2LjQgMjIuNzAgTDEzMC4wIDIyLjAwIEwxMzMuNiAyMS4zMCBMMTM3LjIgMjAuNjEgTDE0MC44IDE5LjkzIEwxNDQuNCAxOS4yNiBMMTQ4LjEgMTguNjIgTDE1MS43IDE4LjAwIEwxNTUuMyAxNy40MSBMMTU4LjkgMTYuODYgTDE2Mi41IDE2LjM0IEwxNjYuMSAxNS44NyBMMTY5LjcgMTUuNDUgTDE3My4zIDE1LjA3IEwxNzYuOSAxNC43NSBMMTgwLjYgMTQuNDggTDE4NC4yIDE0LjI3IEwxODcuOCAxNC4xMiBMMTkxLjQgMTQuMDMgTDE5NS4wIDE0LjAwIEwxOTguNiAxNC4wMyBMMjAyLjIgMTQuMTIgTDIwNS44IDE0LjI3IEwyMDkuNCAxNC40OCBMMjEzLjEgMTQuNzUgTDIxNi43IDE1LjA3IEwyMjAuMyAxNS40NSBMMjIzLjkgMTUuODcgTDIyNy41IDE2LjM0IEwyMzEuMSAxNi44NiBMMjM0LjcgMTcuNDEgTDIzOC4zIDE4LjAwIEwyNDEuOSAxOC42MiBMMjQ1LjYgMTkuMjYgTDI0OS4yIDE5LjkzIEwyNTIuOCAyMC42MSBMMjU2LjQgMjEuMzAgTDI2MC4wIDIyLjAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNFNkFFNDUiIHN0cm9rZS13aWR0aD0iMS45IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=");opacity:.58;animation:wave-a 19s linear infinite}
+  .wave-sep i     {--drift:wave-b;--drift-time:27s;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNjAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCAyNjAgNDQiPjxwYXRoIGQ9Ik0wLjAgMjUuOTYgTDMuNiAyNS42MCBMNy4yIDI1LjIxIEwxMC44IDI0LjgwIEwxNC40IDI0LjM3IEwxOC4xIDIzLjkyIEwyMS43IDIzLjQ1IEwyNS4zIDIyLjk3IEwyOC45IDIyLjQ5IEwzMi41IDIyLjAwIEwzNi4xIDIxLjUxIEwzOS43IDIxLjAzIEw0My4zIDIwLjU1IEw0Ni45IDIwLjA4IEw1MC42IDE5LjYzIEw1NC4yIDE5LjIwIEw1Ny44IDE4Ljc5IEw2MS40IDE4LjQwIEw2NS4wIDE4LjA0IEw2OC42IDE3LjcxIEw3Mi4yIDE3LjQxIEw3NS44IDE3LjE1IEw3OS40IDE2LjkyIEw4My4xIDE2Ljc0IEw4Ni43IDE2LjU5IEw5MC4zIDE2LjQ5IEw5My45IDE2LjQyIEw5Ny41IDE2LjQwIEwxMDEuMSAxNi40MiBMMTA0LjcgMTYuNDkgTDEwOC4zIDE2LjU5IEwxMTEuOSAxNi43NCBMMTE1LjYgMTYuOTIgTDExOS4yIDE3LjE1IEwxMjIuOCAxNy40MSBMMTI2LjQgMTcuNzEgTDEzMC4wIDE4LjA0IEwxMzMuNiAxOC40MCBMMTM3LjIgMTguNzkgTDE0MC44IDE5LjIwIEwxNDQuNCAxOS42MyBMMTQ4LjEgMjAuMDggTDE1MS43IDIwLjU1IEwxNTUuMyAyMS4wMyBMMTU4LjkgMjEuNTEgTDE2Mi41IDIyLjAwIEwxNjYuMSAyMi40OSBMMTY5LjcgMjIuOTcgTDE3My4zIDIzLjQ1IEwxNzYuOSAyMy45MiBMMTgwLjYgMjQuMzcgTDE4NC4yIDI0LjgwIEwxODcuOCAyNS4yMSBMMTkxLjQgMjUuNjAgTDE5NS4wIDI1Ljk2IEwxOTguNiAyNi4yOSBMMjAyLjIgMjYuNTkgTDIwNS44IDI2Ljg1IEwyMDkuNCAyNy4wOCBMMjEzLjEgMjcuMjYgTDIxNi43IDI3LjQxIEwyMjAuMyAyNy41MSBMMjIzLjkgMjcuNTggTDIyNy41IDI3LjYwIEwyMzEuMSAyNy41OCBMMjM0LjcgMjcuNTEgTDIzOC4zIDI3LjQxIEwyNDEuOSAyNy4yNiBMMjQ1LjYgMjcuMDggTDI0OS4yIDI2Ljg1IEwyNTIuOCAyNi41OSBMMjU2LjQgMjYuMjkgTDI2MC4wIDI1Ljk2IiBmaWxsPSJub25lIiBzdHJva2U9IiMzNUM0QTUiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=");opacity:.44;animation:wave-b 27s linear infinite}
+  .wave-sep::after{--drift:wave-c;--drift-time:38s;background-image:url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNjAiIGhlaWdodD0iNDQiIHZpZXdCb3g9IjAgMCAyNjAgNDQiPjxwYXRoIGQ9Ik0wLjAgMTIuMDEgTDMuNiAxMS43NyBMNy4yIDExLjYwIEwxMC44IDExLjUxIEwxNC40IDExLjUxIEwxOC4xIDExLjU4IEwyMS43IDExLjczIEwyNS4zIDExLjk2IEwyOC45IDEyLjI2IEwzMi41IDEyLjY0IEwzNi4xIDEzLjEwIEwzOS43IDEzLjYxIEw0My4zIDE0LjIwIEw0Ni45IDE0Ljg0IEw1MC42IDE1LjU0IEw1NC4yIDE2LjI4IEw1Ny44IDE3LjA3IEw2MS40IDE3LjkwIEw2NS4wIDE4Ljc2IEw2OC42IDE5LjY0IEw3Mi4yIDIwLjU0IEw3NS44IDIxLjQ1IEw3OS40IDIyLjM3IEw4My4xIDIzLjI4IEw4Ni43IDI0LjE4IEw5MC4zIDI1LjA3IEw5My45IDI1LjkzIEw5Ny41IDI2Ljc3IEwxMDEuMSAyNy41NiBMMTA0LjcgMjguMzIgTDEwOC4zIDI5LjAzIEwxMTEuOSAyOS42OCBMMTE1LjYgMzAuMjcgTDExOS4yIDMwLjgxIEwxMjIuOCAzMS4yNyBMMTI2LjQgMzEuNjcgTDEzMC4wIDMxLjk5IEwxMzMuNiAzMi4yMyBMMTM3LjIgMzIuNDAgTDE0MC44IDMyLjQ5IEwxNDQuNCAzMi40OSBMMTQ4LjEgMzIuNDIgTDE1MS43IDMyLjI3IEwxNTUuMyAzMi4wNCBMMTU4LjkgMzEuNzQgTDE2Mi41IDMxLjM2IEwxNjYuMSAzMC45MCBMMTY5LjcgMzAuMzkgTDE3My4zIDI5LjgwIEwxNzYuOSAyOS4xNiBMMTgwLjYgMjguNDYgTDE4NC4yIDI3LjcyIEwxODcuOCAyNi45MyBMMTkxLjQgMjYuMTAgTDE5NS4wIDI1LjI0IEwxOTguNiAyNC4zNiBMMjAyLjIgMjMuNDYgTDIwNS44IDIyLjU1IEwyMDkuNCAyMS42MyBMMjEzLjEgMjAuNzIgTDIxNi43IDE5LjgyIEwyMjAuMyAxOC45MyBMMjIzLjkgMTguMDcgTDIyNy41IDE3LjIzIEwyMzEuMSAxNi40NCBMMjM0LjcgMTUuNjggTDIzOC4zIDE0Ljk3IEwyNDEuOSAxNC4zMiBMMjQ1LjYgMTMuNzMgTDI0OS4yIDEzLjE5IEwyNTIuOCAxMi43MyBMMjU2LjQgMTIuMzMgTDI2MC4wIDEyLjAxIiBmaWxsPSJub25lIiBzdHJva2U9IiNFNkFFNDUiIHN0cm9rZS13aWR0aD0iMS4xIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48L3N2Zz4=");opacity:.24;animation:wave-c 38s linear infinite}
+  /* The palette's gold sits too light against a near-white ground; darken and
+     saturate the strands rather than shipping a second set of images. */
+  [data-theme="light"] .wave-sep::before,
+  [data-theme="light"] .wave-sep::after,
+  [data-theme="light"] .wave-sep i{filter:brightness(.72) saturate(1.45)}
+  [data-theme="light"] .wave-sep::before{opacity:.72}
+  [data-theme="light"] .wave-sep i{opacity:.5}
+  [data-theme="light"] .wave-sep::after{opacity:.3}
+
+  /* Each shifts by exactly one tile, so the loop has no seam. */
+  @keyframes wave-a{from{transform:translateX(0)}           to{transform:translateX(-260px)}}
+  @keyframes wave-b{from{transform:translateX(-260px)} to{transform:translateX(0)}}
+  @keyframes wave-c{from{transform:translateX(0)}           to{transform:translateX(-260px)}}
+
+  /* They also swell as you scroll past, so they belong to the page rather than
+     just looping on their own. */
+  @supports (animation-timeline: view()){
+    @media (prefers-reduced-motion:no-preference){
+      .wave-sep::before,.wave-sep::after,.wave-sep i{
+        animation-name:var(--drift),wave-swell;
+        animation-timeline:auto,view();
+        animation-range:normal,entry 0% exit 100%;
+        animation-duration:var(--drift-time),1s;
+        animation-timing-function:linear,linear;
+        animation-iteration-count:infinite,1;
+        animation-fill-mode:none,both;
+        animation-direction:var(--drift-dir,normal),normal;
+      }
+    }
+  }
+  /* Opacity only. Scaling the container would distort its gradient and put the
+     hard edge straight back. */
+  @keyframes wave-swell{
+    from{opacity:.45}
+    50% {opacity:1}
+    to  {opacity:.45}
+  }
+
+  /* Off-screen dividers stop moving. Six separators x three layers is eighteen
+     infinite animations, and there is no reason to composite the ones nobody
+     is looking at. */
+  .wave-sep.idle::before,.wave-sep.idle::after,.wave-sep.idle i{animation-play-state:paused}
+
+  @media (prefers-reduced-motion:reduce){
+    .wave-sep::before,.wave-sep::after,.wave-sep i{animation:none}
+  }
+  @media (max-width:620px){ .wave-sep{height:44px} }
+
   /* ============ Privacy ============ */
   #privacy{background:var(--bg-soft);transition:background .35s ease;padding-block:clamp(3.5rem,6vw,5rem)}
   #privacy h2{font-size:clamp(1.5rem,2.6vw,1.9rem)}
@@ -429,8 +558,7 @@
 
   /* ============ Footer ============ */
   footer{
-    border-top:1px solid var(--line);
-    padding:2rem 0 2.4rem;
+    padding:1.2rem 0 2.4rem;
   }
   .foot{
     display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
@@ -550,6 +678,7 @@
 
 <main>
 
+<div class="wave-sep" aria-hidden="true"><i></i></div>
 <section id="about">
   <div class="wrap">
     <p class="eyebrow reveal">About</p>
@@ -587,6 +716,7 @@
   </div>
 </section>
 
+<div class="wave-sep wave-sep--to-soft" aria-hidden="true"><i></i></div>
 <section id="skills">
   <div class="wrap">
     <p class="eyebrow reveal">Technical arsenal</p>
@@ -633,6 +763,7 @@
   </div>
 </section>
 
+<div class="wave-sep wave-sep--from-soft" aria-hidden="true"><i></i></div>
 <section id="projects">
   <div class="wrap">
     <p class="eyebrow reveal">Featured projects</p>
@@ -698,6 +829,7 @@
   </div>
 </section>
 
+<div class="wave-sep wave-sep--to-soft" aria-hidden="true"><i></i></div>
 <section id="business">
   <div class="wrap">
     <p class="eyebrow reveal">Business acumen</p>
@@ -720,6 +852,7 @@
   </div>
 </section>
 
+<div class="wave-sep wave-sep--from-soft" aria-hidden="true"><i></i></div>
 <section id="contact">
   <div class="wrap">
     <p class="eyebrow reveal">Contact</p>
@@ -771,6 +904,7 @@
 </section>
 
 
+<div class="wave-sep wave-sep--to-soft" aria-hidden="true"><i></i></div>
 <section id="privacy">
   <div class="wrap">
     <p class="eyebrow reveal">Privacy</p>
@@ -816,6 +950,8 @@
 </section>
 
 </main>
+
+<div class="wave-sep wave-sep--from-soft" aria-hidden="true"><i></i></div>
 
 <footer>
   <div class="wrap foot">
@@ -1157,16 +1293,25 @@ print("Done.")
   /* Scroll-reveal */
   var revealed = document.querySelectorAll('.reveal');
 
+  /* Where the browser can drive animation from scroll position, CSS handles
+     everything inside <main> and the observer would only fight it. */
+  var nativeScroll = !reduceMotion &&
+    typeof CSS !== 'undefined' && CSS.supports &&
+    CSS.supports('animation-timeline: view()');
+
   /* Stagger the cards in each grid off their position rather than hand-written
-     delays, so a group flows in instead of landing all at once. */
-  document.querySelectorAll('.skill-grid,.proj-grid,.biz-grid,.privacy-grid,.receipts')
-    .forEach(function(grid){
-      Array.prototype.forEach.call(grid.children, function(child, i){
-        if(child.classList.contains('reveal')){
-          child.style.setProperty('--d', (i * 0.075) + 's');
-        }
+     delays, so a group flows in instead of landing all at once. Only needed on
+     the fallback path - scroll-driven cards stagger naturally by position. */
+  if(!nativeScroll){
+    document.querySelectorAll('.skill-grid,.proj-grid,.biz-grid,.privacy-grid,.receipts')
+      .forEach(function(grid){
+        Array.prototype.forEach.call(grid.children, function(child, i){
+          if(child.classList.contains('reveal')){
+            child.style.setProperty('--d', (i * 0.075) + 's');
+          }
+        });
       });
-    });
+  }
 
   if('IntersectionObserver' in window && !reduceMotion){
     var io = new IntersectionObserver(function(entries){
@@ -1177,7 +1322,25 @@ print("Done.")
         }
       });
     }, {threshold:.08, rootMargin:'0px 0px -4% 0px'});
-    revealed.forEach(function(el){ io.observe(el); });
+    revealed.forEach(function(el){
+      if(nativeScroll && el.closest('main')) return;   /* CSS drives this one */
+      io.observe(el);
+    });
+
+    /* Guarantee the scroll-driven ones finish - see .settled above. */
+    if(nativeScroll){
+      var settle = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          var wellInView = e.intersectionRatio >= 0.55 ||
+                           e.boundingClientRect.top < window.innerHeight * 0.5;
+          if(e.isIntersecting && wellInView){
+            e.target.classList.add('settled');
+            settle.unobserve(e.target);
+          }
+        });
+      }, {threshold:[0, 0.55]});
+      document.querySelectorAll('main .reveal').forEach(function(el){ settle.observe(el); });
+    }
   } else {
     revealed.forEach(function(el){ el.classList.add('in'); });
   }
@@ -1252,6 +1415,18 @@ print("Done.")
       });
     }, {rootMargin:'-45% 0px -50% 0px'});
     sections.forEach(function(s){ if(s.id) sio.observe(s); });
+  }
+
+  /* Pause wave dividers while they are off screen. */
+  if('IntersectionObserver' in window){
+    var waves = document.querySelectorAll('.wave-sep');
+    waves.forEach(function(w){ w.classList.add('idle'); });
+    var waveIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        e.target.classList.toggle('idle', !e.isIntersecting);
+      });
+    }, {rootMargin:'120px 0px'});
+    waves.forEach(function(w){ waveIo.observe(w); });
   }
 
   /* Pointer glow on project cards */
