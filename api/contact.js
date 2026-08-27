@@ -1,5 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 import { createHash } from 'node:crypto';
+import { unsubscribeUrl } from './unsubscribe.js';
 
 const sql = neon(process.env.DATABASE_URL);
 
@@ -107,6 +108,7 @@ export default async function handler(req, res) {
     })]);
   }
   if (confirm) {
+    const unsub = unsubscribeUrl(email);
     jobs.push(['confirm', sendEmail({
       from: process.env.MAIL_FROM,
       to: [email],
@@ -114,8 +116,14 @@ export default async function handler(req, res) {
          not a mailbox. Point replies at the inbox that actually exists. */
       reply_to: process.env.MAIL_TO,
       subject: 'Thanks for reaching out',
-      html: confirmationEmail(name),
-      text: confirmationText(name)
+      html: confirmationEmail(name, unsub),
+      text: confirmationText(name, unsub),
+      /* RFC 8058. Gmail and Outlook render their own one-click unsubscribe
+         button from these, which keeps complaints off the spam button. */
+      headers: {
+        'List-Unsubscribe': `<${unsub}>, <mailto:${process.env.MAIL_TO}?subject=unsubscribe>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+      }
     })]);
   }
 
@@ -193,7 +201,7 @@ function indent(text) {
 /* ---- What the visitor receives ----
    Table layout and inline styles: email clients are twenty years behind browsers.
    System fonts only, because webfonts don't load in most of them. */
-function confirmationEmail(name) {
+function confirmationEmail(name, unsubUrl) {
   const site = process.env.SITE_URL || 'https://metaljewel.com';
   const stack = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
   const first = escapeHtml(firstName(name));
@@ -235,15 +243,16 @@ function confirmationEmail(name) {
 
   </table>
 
-  <div style="font:400 12px ${stack};color:#5C6880;margin-top:18px;">
-    You're getting this because you filled in the contact form at ${site.replace(/^https?:\/\//, '')}.
+  <div style="font:400 12px/1.7 ${stack};color:#5C6880;margin-top:18px;">
+    You're getting this because you filled in the contact form at ${site.replace(/^https?:\/\//, '')}.<br>
+    <a href="${unsubUrl}" style="color:#5C6880;text-decoration:underline;">Unsubscribe and delete my details</a>
   </div>
 </td></tr>
 </table>
 </body></html>`;
 }
 
-function confirmationText(name) {
+function confirmationText(name, unsubUrl) {
   const site = process.env.SITE_URL || 'https://metaljewel.com';
   return [
     `Thanks, ${firstName(name)}.`,
@@ -253,7 +262,10 @@ function confirmationText(name) {
     `In the meantime, everything I've been building is at ${site}`,
     '',
     '- Saad',
-    'Software Engineering, University of Europe for Applied Sciences, Potsdam'
+    'Software Engineering, University of Europe for Applied Sciences, Potsdam',
+    '',
+    'Do not want these? Unsubscribe and delete your details:',
+    unsubUrl
   ].join('\n');
 }
 

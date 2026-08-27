@@ -40,12 +40,14 @@ globalThis.fetch = async (url, opts) => {
 
 const { default: contact } = await import('../api/contact.js');
 const { default: exportH } = await import('../api/export.js');
+const { default: unsub, unsubscribeUrl } = await import('../api/unsubscribe.js');
 
 function mkRes() {
   const r = { code: 0, body: null, headers: {} };
   r.status = c => (r.code = c, r);
   r.json = b => (r.body = b, r);
   r.setHeader = (k, v) => (r.headers[k] = v);
+  r.send = b => (r.body = b, r);
   return r;
 }
 const post = (body, over = {}) =>
@@ -172,6 +174,53 @@ check('accepts the token in an Authorization header', res.code === 200, `got ${r
 check('returns the contacts array', Array.isArray(res.body?.contacts), '');
 check('selects the new columns', queries.some(q => q.includes('phone') && q.includes('description')), '');
 check('sets no-store on the response', res.headers['Cache-Control'] === 'no-store', '');
+
+console.log('\nunsubscribe');
+
+/* The link that goes in every confirmation email */
+const goodUrl = unsubscribeUrl('ada@example.com');
+const goodTok = new URL(goodUrl).searchParams.get('t');
+const otherTok = new URL(unsubscribeUrl('someone-else@example.com')).searchParams.get('t');
+
+reset(); res = mkRes();
+await unsub({ method: 'GET', headers: {}, query: { e: 'ada@example.com', t: goodTok } }, res);
+check('GET with a valid token shows a confirm page', res.code === 200 && String(res.body).includes('Yes, remove me'), `got ${res.code}`);
+check('GET does NOT delete (mail scanners follow links)', !queries.some(q => q.includes('delete from')), '');
+
+reset(); res = mkRes();
+await unsub({ method: 'GET', headers: {}, query: { e: 'ada@example.com', t: 'tampered' } }, res);
+check('rejects a tampered token', res.code === 400, `got ${res.code}`);
+
+reset(); res = mkRes();
+await unsub({ method: 'GET', headers: {}, query: { e: 'ada@example.com', t: otherTok } }, res);
+check("rejects another address's token", res.code === 400, `got ${res.code}`);
+
+reset(); res = mkRes();
+await unsub({ method: 'GET', headers: {}, query: {} }, res);
+check('rejects a missing address', res.code === 400, `got ${res.code}`);
+
+reset(); res = mkRes();
+await unsub({ method: 'POST', headers: {}, query: { e: 'ada@example.com', t: goodTok } }, res);
+check('POST with a valid token deletes', res.code === 200 && queries.some(q => q.includes('delete from contacts')), `got ${res.code}`);
+check('confirms the row is gone', String(res.body).includes('has been deleted'), '');
+
+reset(); res = mkRes();
+await unsub({ method: 'POST', headers: {}, query: { e: 'ada@example.com', t: 'nope' } }, res);
+check('POST with a bad token deletes nothing', res.code === 400 && !queries.some(q => q.includes('delete from')), `got ${res.code}`);
+
+reset(); res = mkRes();
+await unsub({ method: 'PUT', headers: {}, query: { e: 'ada@example.com', t: goodTok } }, res);
+check('rejects other methods', res.code === 405, `got ${res.code}`);
+
+console.log('\nunsubscribe reaches the visitor');
+
+reset(); res = mkRes();
+await contact(post(VALID), res);
+check('confirmation email carries an unsubscribe link', confirm()?.html?.includes('/api/unsubscribe'), '');
+check('plain-text version carries it too', confirm()?.text?.includes('/api/unsubscribe'), '');
+check('List-Unsubscribe header set', !!confirm()?.headers?.['List-Unsubscribe'], '');
+check('one-click header set', confirm()?.headers?.['List-Unsubscribe-Post'] === 'List-Unsubscribe=One-Click', '');
+check("Saad's notification has no unsubscribe link", !notif()?.text?.includes('/api/unsubscribe'), '');
 
 console.log(`\n  ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
