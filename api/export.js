@@ -21,7 +21,8 @@ export default async function handler(req, res) {
 
   try {
     const contacts = await sql`
-      select id, email, source, seen_count, created_at, last_seen_at
+      select id, name, email, phone, description,
+             source, seen_count, created_at, last_seen_at
       from contacts
       order by created_at desc
     `;

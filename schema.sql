@@ -1,6 +1,5 @@
--- Run this once against your Neon database.
+-- Full schema. Safe to re-run: everything is "if not exists".
 --   Neon dashboard -> SQL Editor -> paste -> Run
--- Or:  psql "$DATABASE_URL" -f schema.sql
 
 create table if not exists contacts (
   id            bigserial     primary key,
@@ -13,3 +12,8 @@ create table if not exists contacts (
 );
 
 create index if not exists contacts_created_at_idx on contacts (created_at desc);
+
+-- Added 27 Aug 2026 alongside the expanded form.
+alter table contacts add column if not exists name        text;
+alter table contacts add column if not exists phone       text;  -- full international form, e.g. +49 15123456789
+alter table contacts add column if not exists description text;

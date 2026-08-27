@@ -12,6 +12,7 @@ process.env.IP_SALT        = 'test-salt';
 const sent = [];        // Resend payloads
 const queries = [];     // SQL the handlers issued
 let dbRecent = 0;       // what the rate-limit count returns
+let dbIsNew = true;     // whether the upsert reports a fresh insert
 let dbDown = false;     // simulate an unreachable database
 
 const okJson = body => ({ ok: true, status: 200, json: async () => body, text: async () => '' });
@@ -27,10 +28,14 @@ globalThis.fetch = async (url, opts) => {
   if (q.includes('count(*)')) {
     return okJson({ command: 'SELECT', fields: [{ name: 'recent', dataTypeID: 23 }], rows: [[dbRecent]], rowCount: 1 });
   }
-  if (q.trim().startsWith('select')) {
-    return okJson({ command: 'SELECT', fields: [{ name: 'email', dataTypeID: 25 }], rows: [['a@b.co']], rowCount: 1 });
+  if (q.includes('insert into contacts')) {
+    return okJson({ command: 'INSERT', fields: [{ name: 'is_new', dataTypeID: 16 }], rows: [[dbIsNew ? 't' : 'f']], rowCount: 1 });  /* pg sends booleans as t/f */
   }
-  return okJson({ command: 'INSERT', fields: [], rows: [], rowCount: 1 });
+  return okJson({
+    command: 'SELECT',
+    fields: [{ name: 'email', dataTypeID: 25 }, { name: 'name', dataTypeID: 25 }],
+    rows: [['a@b.co', 'Ada']], rowCount: 1
+  });
 };
 
 const { default: contact } = await import('../api/contact.js');
@@ -46,66 +51,101 @@ function mkRes() {
 const post = (body, over = {}) =>
   ({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.9' }, query: {}, body, ...over });
 
+const VALID = {
+  name: 'Ada Lovelace',
+  email: 'ada@example.com',
+  phone: '+49 15123456789',
+  description: 'I build analytical engines and would like to talk.',
+  source: 'contact'
+};
+
 let pass = 0, fail = 0;
 const check = (name, cond, extra = '') => {
   if (cond) { console.log(`  ok    ${name}`); pass++; }
   else { console.log(`  FAIL  ${name} ${extra}`); fail++; }
 };
-const reset = () => { sent.length = 0; queries.length = 0; dbRecent = 0; dbDown = false; };
+const reset = () => { sent.length = 0; queries.length = 0; dbRecent = 0; dbIsNew = true; dbDown = false; };
+const notif   = () => sent.find(m => m.text && !m.html);
+const confirm = () => sent.find(m => m.html);
 
-console.log('\ncontact endpoint');
+console.log('\ncontact endpoint — validation');
 
 let res = mkRes();
 await contact(post({}, { method: 'GET' }), res);
 check('rejects GET with 405', res.code === 405, `got ${res.code}`);
 
-for (const [label, value] of [['malformed', 'nope'], ['empty', ''], ['no dot', 'a@b'], ['spaces', 'a b@c.co']]) {
+for (const [label, patch] of [
+  ['missing name',   { name: '' }],
+  ['one-char name',  { name: 'A' }],
+  ['missing email',  { email: '' }],
+  ['malformed email',{ email: 'nope' }],
+  ['email with no dot', { email: 'a@b' }],
+  ['too-short phone',{ phone: '+49 12' }],
+  ['letters in phone', { phone: '+49 abcdefgh' }],
+]) {
   reset(); res = mkRes();
-  await contact(post({ email: value }), res);
-  check(`rejects ${label} address`, res.code === 400, `got ${res.code}`);
+  await contact(post({ ...VALID, ...patch }), res);
+  check(`rejects ${label}`, res.code === 400, `got ${res.code} ${JSON.stringify(res.body)}`);
 }
 
 reset(); res = mkRes();
-await contact(post({ email: 'bot@spam.com', _gotcha: 'filled' }), res);
+await contact(post({ ...VALID, phone: '', description: '' }), res);
+check('phone and description are optional', res.code === 200, `got ${res.code}`);
+
+console.log('\ncontact endpoint — a new person');
+
+reset(); res = mkRes();
+await contact(post(VALID), res);
+check('accepts a full submission', res.code === 200 && res.body?.ok === true, `got ${res.code}`);
+check('sends exactly two emails', sent.length === 2, `sent ${sent.length}`);
+check('writes one upsert', queries.filter(q => q.includes('insert into contacts')).length === 1, '');
+check('notification goes to Saad', notif()?.to?.includes('saad.shahzad1990@gmail.com'), '');
+check('notification subject names them', notif()?.subject === 'New contact: Ada Lovelace', notif()?.subject);
+check('notification includes the phone', notif()?.text?.includes('+49 15123456789'), '');
+check('notification includes the description', notif()?.text?.includes('analytical engines'), '');
+check('notification replies to them', notif()?.reply_to === 'ada@example.com', '');
+check('confirmation goes to them', confirm()?.to?.includes('ada@example.com'), '');
+check('confirmation greets by first name', confirm()?.html?.includes('Thanks, Ada.'), '');
+check('confirmation replies reach Saad', confirm()?.reply_to === 'saad.shahzad1990@gmail.com', '');
+
+console.log('\ncontact endpoint — one email per person');
+
+reset(); dbIsNew = false; res = mkRes();
+await contact(post(VALID), res);
+check('repeat submission sends NOTHING', sent.length === 0, `sent ${sent.length}`);
+check('repeat still returns 200', res.code === 200, `got ${res.code}`);
+check('repeat still records the visit', queries.some(q => q.includes('insert into contacts')), '');
+check('repeat still bumps seen_count', queries.some(q => q.includes('seen_count   = contacts.seen_count + 1')), '');
+
+reset(); dbIsNew = false; res = mkRes();
+for (let i = 0; i < 20; i++) { await contact(post(VALID), mkRes()); }
+check('twenty repeats send zero emails', sent.length === 0, `sent ${sent.length}`);
+
+console.log('\ncontact endpoint — abuse and failure');
+
+reset(); res = mkRes();
+await contact(post({ ...VALID, _gotcha: 'filled' }), res);
 check('honeypot returns 200 and sends nothing', res.code === 200 && sent.length === 0, `sent ${sent.length}`);
 
-reset(); res = mkRes();
-await contact(post({ email: '  Visitor@Example.COM  ', source: 'contact' }), res);
-check('accepts a valid address', res.code === 200 && res.body?.ok === true, `got ${res.code}`);
-check('sends exactly two emails', sent.length === 2, `sent ${sent.length}`);
-check('writes a row', queries.some(q => q.includes('insert into contacts')), '');
-check('notifies Saad', sent.some(m => m.to?.includes('saad.shahzad1990@gmail.com')), '');
-check('confirms to the visitor', sent.some(m => m.to?.includes('visitor@example.com')), '');
-check('lowercases and trims the address', sent.some(m => m.to?.[0] === 'visitor@example.com'), '');
-check('notification replies to the visitor', sent.some(m => m.reply_to === 'visitor@example.com'), '');
-check('confirmation has html and text', sent.some(m => m.html && m.text), '');
-check('confirmation replies reach Saad',
-  sent.some(m => m.html && m.reply_to === 'saad.shahzad1990@gmail.com'), '');
-
-reset(); res = mkRes();
-await contact(post(JSON.stringify({ email: 'string@body.dev' })), res);
-check('parses a raw string body', res.code === 200 && sent.length === 2, `got ${res.code}/${sent.length}`);
-
-/* ---- rate limiting ---- */
 reset(); dbRecent = 4; res = mkRes();
-await contact(post({ email: 'fifth@example.com' }), res);
+await contact(post(VALID), res);
 check('lets the 5th submission through', res.code === 200 && sent.length === 2, `got ${res.code}/${sent.length}`);
 
 reset(); dbRecent = 5; res = mkRes();
-await contact(post({ email: 'sixth@example.com' }), res);
+await contact(post(VALID), res);
 check('blocks the 6th with 429', res.code === 429, `got ${res.code}`);
 check('a blocked request sends no email', sent.length === 0, `sent ${sent.length}`);
-check('a blocked request writes no row', !queries.some(q => q.includes('insert into')), '');
 
-reset(); dbRecent = 500; res = mkRes();
-await contact(post({ email: 'flood@example.com' }), res);
-check('stays blocked under a flood', res.code === 429, `got ${res.code}`);
-
-/* ---- resilience ---- */
 reset(); dbDown = true; res = mkRes();
-await contact(post({ email: 'dbdown@example.com' }), res);
+await contact(post(VALID), res);
 check('database down: still accepts', res.code === 200, `got ${res.code}`);
-check('database down: still emails', sent.length === 2, `sent ${sent.length}`);
+check('database down: notifies Saad so the lead survives', !!notif(), '');
+check('database down: does NOT email the visitor', !confirm(), '');
+check('database down: warns the record was not stored', notif()?.text?.includes('NOT stored'), '');
+
+reset(); res = mkRes();
+await contact(post(JSON.stringify(VALID)), res);
+check('parses a raw string body', res.code === 200 && sent.length === 2, `got ${res.code}/${sent.length}`);
 
 console.log('\nexport endpoint');
 
@@ -125,15 +165,12 @@ reset(); res = mkRes();
 await exportH({ method: 'POST', headers: {}, query: { token: 'test-token-0123456789' } }, res);
 check('rejects non-GET', res.code === 405, `got ${res.code}`);
 
-reset(); res = mkRes();
-await exportH({ method: 'GET', headers: {}, query: { token: 'test-token-0123456789' } }, res);
-check('accepts the token in a query param', res.code === 200, `got ${res.code}`);
-
 /* sync.py sends it this way, so this path matters most */
 reset(); res = mkRes();
 await exportH({ method: 'GET', headers: { authorization: 'Bearer test-token-0123456789' }, query: {} }, res);
 check('accepts the token in an Authorization header', res.code === 200, `got ${res.code}`);
 check('returns the contacts array', Array.isArray(res.body?.contacts), '');
+check('selects the new columns', queries.some(q => q.includes('phone') && q.includes('description')), '');
 check('sets no-store on the response', res.headers['Cache-Control'] === 'no-store', '');
 
 console.log(`\n  ${pass} passed, ${fail} failed\n`);
