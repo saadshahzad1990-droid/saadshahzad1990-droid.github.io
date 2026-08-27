@@ -434,17 +434,67 @@
   }
   .lead-form .invalid{border-color:var(--gold)}
   .phone-row{display:flex;gap:.5rem}
-  .phone-row select{
-    flex:0 0 auto;width:auto;max-width:11.5rem;cursor:pointer;
-    -webkit-appearance:none;appearance:none;padding-right:2.1rem;
-    background-image:linear-gradient(45deg,transparent 50%,var(--ink-soft) 50%),
-                     linear-gradient(135deg,var(--ink-soft) 50%,transparent 50%);
-    background-position:calc(100% - 1.05rem) 55%,calc(100% - .75rem) 55%;
-    background-size:6px 6px,6px 6px;background-repeat:no-repeat;
-  }
   .phone-row input{flex:1 1 auto}
-  /* Fallback rendering when the platform has no flag glyphs. */
-  .phone-row select.no-flags{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.88rem}
+
+  /* ---- Country dial picker ----
+     A native <select> cannot show these flags: the dropdown is an operating
+     system menu and browsers do not apply page fonts inside <option>, so the
+     glyph falls back to the two letters of the country code. Owning the markup
+     is the only way to control what gets drawn. */
+  .dial{position:relative;flex:0 0 auto}
+  .dial-btn{
+    display:flex;align-items:center;gap:.5rem;
+    padding:.8rem .85rem .8rem 1rem;border-radius:12px;
+    background:var(--surface);border:1px solid var(--line);color:var(--ink);
+    font:inherit;font-size:.96rem;cursor:pointer;white-space:nowrap;
+    transition:border-color .2s,box-shadow .2s;
+  }
+  .dial-btn:hover{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))}
+  .dial-btn[aria-expanded="true"]{
+    border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 22%,transparent);
+  }
+  .dial-chev{
+    width:0;height:0;margin-left:.1rem;
+    border-left:4.5px solid transparent;border-right:4.5px solid transparent;
+    border-top:5px solid var(--ink-soft);transition:transform .2s;
+  }
+  .dial-btn[aria-expanded="true"] .dial-chev{transform:rotate(180deg)}
+  .dial-code{font-family:'JetBrains Mono',monospace;font-size:.9rem}
+
+  /* Ask for the emoji faces explicitly. In ordinary elements - unlike <option> -
+     this is honoured. */
+  .dial-flag,.dial-opt .f{
+    font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla',sans-serif;
+    font-size:1.05rem;line-height:1;
+  }
+  .dial.no-flags .dial-flag,.dial.no-flags .dial-opt .f{
+    font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.04em;
+    color:var(--ink-soft);
+  }
+
+  .dial-pop{
+    position:absolute;z-index:40;top:calc(100% + .45rem);left:0;
+    width:19rem;max-width:min(19rem,86vw);
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .dial-search{
+    width:100%;border:0;border-bottom:1px solid var(--line);border-radius:0;
+    padding:.7rem .9rem;background:var(--surface-2);color:var(--ink);
+    font:inherit;font-size:.9rem;
+  }
+  .dial-search:focus{outline:none;border-bottom-color:var(--gold);box-shadow:none}
+  .dial-list{list-style:none;margin:0;padding:.3rem;max-height:15rem;overflow-y:auto}
+  .dial-opt{
+    display:flex;align-items:center;gap:.65rem;
+    padding:.5rem .6rem;border-radius:9px;cursor:pointer;font-size:.92rem;
+  }
+  .dial-opt .f{flex:0 0 1.5rem}
+  .dial-opt .c{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--ink-soft);flex:0 0 3.1rem}
+  .dial-opt .n{color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dial-opt:hover,.dial-opt.active{background:var(--surface-2)}
+  .dial-opt[aria-selected="true"] .c{color:var(--gold-text)}
+  .dial-empty{padding:1rem .9rem;font-size:.88rem;color:var(--ink-soft)}
   .counter{font-family:'JetBrains Mono',monospace;font-size:.69rem;color:var(--ink-soft);opacity:.6;text-align:right}
   .counter.near{color:var(--gold-text);opacity:1}
   .lead-actions{display:flex;justify-content:center}
@@ -876,8 +926,21 @@
         <div class="field">
           <label for="leadPhone">Phone <span class="opt">optional</span></label>
           <div class="phone-row">
-            <label class="sr-only" for="leadDial">Country dialling code</label>
-            <select id="leadDial"></select>
+            <div class="dial" id="dialWrap">
+              <input type="hidden" id="leadDial" value="49">
+              <button type="button" id="dialBtn" class="dial-btn"
+                      aria-haspopup="listbox" aria-expanded="false" aria-label="Country dialling code">
+                <span class="dial-flag" id="dialFlag"></span>
+                <span class="dial-code" id="dialCode">+49</span>
+                <span class="dial-chev" aria-hidden="true"></span>
+              </button>
+              <div class="dial-pop" id="dialPop" hidden>
+                <input type="text" id="dialSearch" class="dial-search" autocomplete="off"
+                       placeholder="Search country" aria-label="Search country">
+                <ul class="dial-list" id="dialList" role="listbox" aria-label="Country dialling code"></ul>
+                <p class="dial-empty" id="dialEmpty" hidden>No country matches that.</p>
+              </div>
+            </div>
             <input id="leadPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national"
                    maxlength="20" placeholder="151 2345678">
           </div>
@@ -1454,7 +1517,7 @@ print("Done.")
   var leadStatus = document.getElementById('leadStatus');
   var leadName   = document.getElementById('leadName');
   var leadEmail  = document.getElementById('leadEmail');
-  var leadDial   = document.getElementById('leadDial');
+  var leadDial   = document.getElementById('leadDial');      /* hidden input, holds the code */
   var leadPhone  = document.getElementById('leadPhone');
   var leadDesc   = document.getElementById('leadDesc');
   var leadCount  = document.getElementById('leadCount');
@@ -1468,19 +1531,18 @@ print("Done.")
     );
   }
 
-  /* Windows has never shipped country-flag glyphs, so Chrome and Edge there draw
-     a regional-indicator pair as two letter boxes rather than one flag. Measure it:
-     where flags render, the pair collapses into a single glyph noticeably narrower
-     than two separate indicators. Where they do not, fall back to the country code,
-     which every platform can draw. */
+  /* Windows ships no country-flag glyphs at all, so Chrome and Edge there draw a
+     regional-indicator pair as two letter boxes. Measure it: where flags render,
+     the pair collapses into one glyph much narrower than two separate
+     indicators. Where they do not, show the country code instead. */
   var FLAGS_OK = (function(){
     try{
       var canvas = document.createElement('canvas');
       if(!canvas.getContext) return false;
       var ctx = canvas.getContext('2d');
       if(!ctx) return false;
-      ctx.font = '16px sans-serif';
-      var pair   = ctx.measureText(flagFor('DE')).width;
+      ctx.font = '16px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
+      var pair    = ctx.measureText(flagFor('DE')).width;
       var singles = ctx.measureText(String.fromCodePoint(0x1F1E9)).width * 2;
       return pair > 0 && pair < singles * 0.9;
     }catch(e){
@@ -1488,15 +1550,98 @@ print("Done.")
     }
   })();
 
-  DIAL_CODES.split(',').forEach(function(entry){
+  var COUNTRIES = DIAL_CODES.split(',').map(function(entry){
     var bits = entry.split('|');
-    var opt = document.createElement('option');
-    opt.value = bits[2];
-    opt.textContent = (FLAGS_OK ? flagFor(bits[0]) : bits[0]) + '  +' + bits[2] + '  ' + bits[1];
-    if(bits[0] === 'DE') opt.selected = true;
-    leadDial.appendChild(opt);
+    return { iso: bits[0], name: bits[1], code: bits[2] };
   });
-  if(!FLAGS_OK) leadDial.classList.add('no-flags');
+
+  var dialWrap   = document.getElementById('dialWrap');
+  var dialBtn    = document.getElementById('dialBtn');
+  var dialPop    = document.getElementById('dialPop');
+  var dialList   = document.getElementById('dialList');
+  var dialSearch = document.getElementById('dialSearch');
+  var dialEmpty  = document.getElementById('dialEmpty');
+  var dialFlag   = document.getElementById('dialFlag');
+  var dialCode   = document.getElementById('dialCode');
+  var activeIdx  = -1;
+  var shown      = COUNTRIES;
+
+  if(!FLAGS_OK) dialWrap.classList.add('no-flags');
+
+  function mark(c){ return FLAGS_OK ? flagFor(c.iso) : c.iso; }
+
+  function choose(c){
+    leadDial.value = c.code;
+    dialFlag.textContent = mark(c);
+    dialCode.textContent = '+' + c.code;
+    dialBtn.setAttribute('aria-label', 'Country dialling code: ' + c.name + ' +' + c.code);
+  }
+
+  function paint(filter){
+    var q = (filter || '').trim().toLowerCase();
+    shown = q ? COUNTRIES.filter(function(c){
+      return c.name.toLowerCase().indexOf(q) > -1 ||
+             c.code.indexOf(q.replace(/^\+/, '')) === 0 ||
+             c.iso.toLowerCase() === q;
+    }) : COUNTRIES;
+
+    dialList.innerHTML = shown.map(function(c, i){
+      return '<li class="dial-opt" role="option" data-i="' + i + '"' +
+             (c.code === leadDial.value ? ' aria-selected="true"' : '') + '>' +
+             '<span class="f">' + mark(c) + '</span>' +
+             '<span class="c">+' + c.code + '</span>' +
+             '<span class="n">' + c.name + '</span></li>';
+    }).join('');
+    dialEmpty.hidden = shown.length > 0;
+    activeIdx = shown.length ? 0 : -1;
+    highlight();
+  }
+
+  function highlight(){
+    var items = dialList.children;
+    for(var i = 0; i < items.length; i++){
+      items[i].classList.toggle('active', i === activeIdx);
+    }
+    if(activeIdx > -1 && items[activeIdx]){
+      items[activeIdx].scrollIntoView({block:'nearest'});
+    }
+  }
+
+  function openDial(){
+    dialPop.hidden = false;
+    dialBtn.setAttribute('aria-expanded', 'true');
+    dialSearch.value = '';
+    paint('');
+    dialSearch.focus();
+  }
+  function closeDial(refocus){
+    dialPop.hidden = true;
+    dialBtn.setAttribute('aria-expanded', 'false');
+    if(refocus) dialBtn.focus();
+  }
+
+  dialBtn.addEventListener('click', function(){
+    dialPop.hidden ? openDial() : closeDial(true);
+  });
+  dialSearch.addEventListener('input', function(){ paint(dialSearch.value); });
+  dialList.addEventListener('click', function(e){
+    var li = e.target.closest('.dial-opt');
+    if(!li) return;
+    choose(shown[+li.dataset.i]);
+    closeDial(true);
+  });
+  dialPop.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowDown'){ e.preventDefault(); activeIdx = Math.min(activeIdx + 1, shown.length - 1); highlight(); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); highlight(); }
+    else if(e.key === 'Enter'){ e.preventDefault(); if(shown[activeIdx]){ choose(shown[activeIdx]); closeDial(true); } }
+    else if(e.key === 'Escape'){ e.preventDefault(); closeDial(true); }
+  });
+  document.addEventListener('click', function(e){
+    if(!dialPop.hidden && !dialWrap.contains(e.target)) closeDial(false);
+  });
+
+  /* Germany to start with, matching where Saad is. */
+  choose(COUNTRIES.filter(function(c){ return c.iso === 'DE'; })[0] || COUNTRIES[0]);
 
   leadDesc.addEventListener('input', function(){
     var n = leadDesc.value.length;
