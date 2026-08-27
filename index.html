@@ -467,7 +467,22 @@
     font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji','Twemoji Mozilla',sans-serif;
     font-size:1.05rem;line-height:1;
   }
-  .dial.no-flags .dial-flag,.dial.no-flags .dial-opt .f{
+  /* Windows ships no flag glyphs in any font, so there is nothing for the
+     browser to draw. On those platforms swap the emoji for a sprite of the same
+     flags: Twemoji, CC BY 4.0, credited in the footer. One 82KB request, and
+     only on the platforms that actually need it. */
+  .dial.no-flags .dial-flag,
+  .dial.no-flags .dial-opt .f{
+    display:inline-block;width:22px;height:16px;flex:0 0 22px;
+    font-size:0;color:transparent;vertical-align:middle;border-radius:2px;
+    background-image:url("flags.png");
+    background-size:440px 160px;background-repeat:no-repeat;
+    box-shadow:0 0 0 1px rgba(0,0,0,.14);
+  }
+  /* Last resort: sprite unreachable, show the country code as text. */
+  .dial.no-flags.no-sprite .dial-flag,
+  .dial.no-flags.no-sprite .dial-opt .f{
+    background-image:none;box-shadow:none;width:auto;flex:0 0 1.5rem;
     font-family:'JetBrains Mono',monospace;font-size:.78rem;letter-spacing:.04em;
     color:var(--ink-soft);
   }
@@ -1019,7 +1034,11 @@
 <footer>
   <div class="wrap foot">
     <span>Saad · Software Engineering, University of Europe for Applied Sciences, Potsdam</span>
-    <span><a href="#privacy" style="color:var(--ink-soft);text-decoration:underline;text-underline-offset:2px">Privacy</a></span>
+    <span><a href="#privacy" style="color:var(--ink-soft);text-decoration:underline;text-underline-offset:2px">Privacy</a>
+      &nbsp;&middot;&nbsp;
+      <a href="https://github.com/jdecked/twemoji" target="_blank" rel="noopener"
+         style="color:var(--ink-soft);text-decoration:underline;text-underline-offset:2px">Flags by Twemoji</a>
+      <span style="opacity:.7">(CC BY 4.0)</span></span>
     <span class="mono">putting the <b>fun</b> in functional since 2025</span>
   </div>
 </footer>
@@ -1550,9 +1569,9 @@ print("Done.")
     }
   })();
 
-  var COUNTRIES = DIAL_CODES.split(',').map(function(entry){
+  var COUNTRIES = DIAL_CODES.split(',').map(function(entry, i){
     var bits = entry.split('|');
-    return { iso: bits[0], name: bits[1], code: bits[2] };
+    return { iso: bits[0], name: bits[1], code: bits[2], idx: i };
   });
 
   var dialWrap   = document.getElementById('dialWrap');
@@ -1566,13 +1585,31 @@ print("Done.")
   var activeIdx  = -1;
   var shown      = COUNTRIES;
 
-  if(!FLAGS_OK) dialWrap.classList.add('no-flags');
+  /* Sprite geometry, matching how flags.png was laid out. */
+  var SPRITE_COLS = 20, SPRITE_W = 22, SPRITE_H = 16;
 
+  if(!FLAGS_OK){
+    dialWrap.classList.add('no-flags');
+    /* If the sprite cannot be fetched, fall back to country codes rather than
+       leaving 199 blank rectangles. */
+    var probe = new Image();
+    probe.onerror = function(){ dialWrap.classList.add('no-sprite'); };
+    probe.src = 'flags.png';
+  }
+
+  function spritePos(c){
+    var col = c.idx % SPRITE_COLS, row = Math.floor(c.idx / SPRITE_COLS);
+    return (-col * SPRITE_W) + 'px ' + (-row * SPRITE_H) + 'px';
+  }
+  /* Text for the emoji path; the sprite path paints via background instead, but
+     keeps the code as a text fallback and for screen readers. */
   function mark(c){ return FLAGS_OK ? flagFor(c.iso) : c.iso; }
+  function markAttrs(c){ return FLAGS_OK ? '' : ' style="background-position:' + spritePos(c) + '"'; }
 
   function choose(c){
     leadDial.value = c.code;
     dialFlag.textContent = mark(c);
+    dialFlag.style.backgroundPosition = FLAGS_OK ? '' : spritePos(c);
     dialCode.textContent = '+' + c.code;
     dialBtn.setAttribute('aria-label', 'Country dialling code: ' + c.name + ' +' + c.code);
   }
@@ -1588,7 +1625,7 @@ print("Done.")
     dialList.innerHTML = shown.map(function(c, i){
       return '<li class="dial-opt" role="option" data-i="' + i + '"' +
              (c.code === leadDial.value ? ' aria-selected="true"' : '') + '>' +
-             '<span class="f">' + mark(c) + '</span>' +
+             '<span class="f"' + markAttrs(c) + '>' + mark(c) + '</span>' +
              '<span class="c">+' + c.code + '</span>' +
              '<span class="n">' + c.name + '</span></li>';
     }).join('');
