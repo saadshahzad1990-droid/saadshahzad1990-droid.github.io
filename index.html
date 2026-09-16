@@ -86,7 +86,10 @@
 
   /* ============ Type ============ */
   h1,h2,h3{font-family:'Space Grotesk',sans-serif;line-height:1.12;letter-spacing:-.015em}
-  h1{font-size:clamp(2.7rem,7vw,5rem);font-weight:700}
+  /* Sized so "functional software." always shares a line. At 5rem it missed by a
+     few pixels on desktop; at 7vw it missed on tablets, where the text column
+     narrows beside the portrait while the type is still growing. */
+  h1{font-size:clamp(2.7rem,6.2vw,4.6rem);font-weight:700}
   h2{font-size:clamp(1.9rem,4vw,2.75rem);font-weight:600;margin-bottom:1rem}
   h3{font-size:1.2rem;font-weight:600}
   .mono{font-family:'JetBrains Mono',monospace}
@@ -186,12 +189,14 @@
     .hero-portrait img{width:clamp(120px,32vw,170px);border-radius:18px}
   }
   .hero h1{max-width:15ch;margin-bottom:1.4rem}
-  .fun{
-    position:relative;color:var(--gold-text);display:inline-block;
-    transform:rotate(-1.5deg);
-  }
+  /* "fun" + "ctional" must read as one word: never split across lines, and the
+     highlighted part shares the rest of the word's baseline. The playful tilt
+     lives on the underline alone, so the letters stay level. */
+  .one-word{white-space:nowrap}
+  .fun{position:relative;color:var(--gold-text);display:inline-block}
   .fun svg{
     position:absolute;left:-2%;bottom:-.18em;width:104%;height:.34em;overflow:visible;
+    transform:rotate(-1.5deg);transform-origin:50% 50%;
   }
   .fun svg path{
     fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;
@@ -703,7 +708,7 @@
     <p class="eyebrow reveal">B.Sc. Software Engineering · Potsdam</p>
     <h1 class="reveal" style="--d:.08s">
       Serious about
-      <span class="fun">fun<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 20 3, 35 11, 52 6 S 84 4, 98 7"/></svg></span>ctional software.
+      <span class="one-word"><span class="fun">fun<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><path d="M2 8 C 20 3, 35 11, 52 6 S 84 4, 98 7"/></svg></span>ctional</span> software.
     </h1>
     <p class="lede reveal" style="--d:.16s">
       I'm Saad, a software engineering student at the University of Europe
