@@ -320,8 +320,14 @@
   .skill-card{
     background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
     padding:1.7rem;transition:transform .25s,border-color .25s,box-shadow .25s;
+    display:flex;flex-direction:column;
   }
+  /* Tags sit on the card's bottom edge, so paired cards line their tag rows up
+     however long each description runs. */
+  .skill-card .tags{margin-top:auto}
   .skill-card:hover{transform:translateY(-5px);border-color:var(--gold);box-shadow:var(--shadow)}
+  /* An odd card out spans the full row rather than sitting half-width alone. */
+  .skill-grid > .skill-card:last-child:nth-child(odd){grid-column:1/-1}
   .skill-card h3{margin-bottom:.6rem}
   .skill-card p{color:var(--ink-soft);font-size:.97rem;margin-bottom:1.1rem}
   .tags{display:flex;flex-wrap:wrap;gap:.45rem}
@@ -802,6 +808,15 @@
           <span class="tag">Client–server</span>
         </div>
       </div>
+      <div class="skill-card reveal" style="--d:.11s">
+        <h3>Web development &amp; deployment</h3>
+        <p>I design sites to look good and then ship them myself: build, deploy, point the domain, sort out the DNS. You are looking at an example &mdash; hand-written HTML, CSS and JavaScript, live on Vercel under its own domain.</p>
+        <div class="tags">
+          <span class="tag hot">HTML, CSS &amp; JS</span>
+          <span class="tag">Vercel deploys</span>
+          <span class="tag">Domains &amp; DNS</span>
+        </div>
+      </div>
       <div class="skill-card reveal" style="--d:.14s">
         <h3>AI &amp; machine learning</h3>
         <p>Purpose-built models, from the two healthcare projects featured below to smaller ones made purely for fun. Sharpened in the Machine Learning &amp; Smart Systems and Artificial Intelligence courses.</p>
@@ -811,6 +826,15 @@
           <span class="tag">Explainability</span>
         </div>
       </div>
+      <div class="skill-card reveal" style="--d:.17s">
+        <h3>Databases &amp; automated email</h3>
+        <p>Connecting a site to a real database, having it send its own email, and keeping the whole thing running from my side. The contact form below stores to Postgres and sends confirmations through Resend, with unsubscribe links and spam protection built in.</p>
+        <div class="tags">
+          <span class="tag cool">PostgreSQL</span>
+          <span class="tag">Transactional email</span>
+          <span class="tag">Serverless APIs</span>
+        </div>
+      </div>
       <div class="skill-card reveal" style="--d:.2s">
         <h3>Systems &amp; backend</h3>
         <p>Java for backend services, written with full effort and easy handovers in mind. C++ for parallel programming, where I pay attention to the logic and what it costs at runtime.</p>
@@ -818,6 +842,15 @@
           <span class="tag">Java</span>
           <span class="tag">C++</span>
           <span class="tag">Parallel programming</span>
+        </div>
+      </div>
+      <div class="skill-card reveal" style="--d:.23s">
+        <h3>IT for logistics &amp; trading</h3>
+        <p>Hands-on IT for a logistics and warehousing company and its trading business: their databases, their network and their software. Keeping the systems a working business depends on running, and fixing them when they are not.</p>
+        <div class="tags">
+          <span class="tag cool">Networks</span>
+          <span class="tag">Business databases</span>
+          <span class="tag">Software support</span>
         </div>
       </div>
       <div class="skill-card reveal" style="--d:.26s">
